@@ -1,5 +1,6 @@
 package com.badger.lolbyte.client
 
+import com.badger.lolbyte.current.CurrentGameResponse
 import com.badger.lolbyte.rank.RankResponse
 import com.badger.lolbyte.recent.RecentGameResponse
 import com.badger.lolbyte.statistics.TopChampsResponse
@@ -12,6 +13,7 @@ class TestClient(
     private val ranksResponse: List<RankResponse>? = null,
     private val topChampsResponse: TopChampsResponse? = null,
     private val champMapping: Map<Int, String>? = null,
+    private val currentGameResponse: CurrentGameResponse? = null,
 ) : RiotApiClient {
     override fun getSummoner(name: String): SummonerResponse {
         return summonerResponse ?: Assertions.fail("No summonerResponse provided")
@@ -31,5 +33,9 @@ class TestClient(
 
     override fun getChampName(id: Int): String {
         return champMapping?.get(id) ?: Assertions.fail("No champMapping provided for $id")
+    }
+
+    override fun getCurrentGame(id: String): CurrentGameResponse {
+        return currentGameResponse ?: Assertions.fail("No currentGameResponse provided")
     }
 }

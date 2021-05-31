@@ -1,5 +1,7 @@
 package com.badger.lolbyte.client
 
+import com.badger.lolbyte.NotFoundException
+import com.badger.lolbyte.current.CurrentGameResponse
 import com.badger.lolbyte.rank.RankResponse
 import com.badger.lolbyte.recent.ItemResponse
 import com.badger.lolbyte.recent.RecentGameResponse
@@ -11,6 +13,7 @@ import com.merakianalytics.orianna.types.common.Region
 import com.merakianalytics.orianna.types.core.match.MatchHistory
 import com.merakianalytics.orianna.types.core.staticdata.Champion
 import com.merakianalytics.orianna.types.core.summoner.Summoner
+import com.badger.lolbyte.current.SummonerResponse as CurrentGameSummonerResponse
 
 class OriannaClient(region: com.badger.lolbyte.region.Region, apiKey: String) : RiotApiClient {
     init {
@@ -106,5 +109,22 @@ class OriannaClient(region: com.badger.lolbyte.region.Region, apiKey: String) : 
 
     override fun getChampName(id: Int): String {
         return Champion.withId(id).get().name
+    }
+
+    override fun getCurrentGame(id: String): CurrentGameResponse {
+        val summoner = Summoner.withAccountId(id).get()
+        if (!summoner.isInGame) throw NotFoundException
+        val summoners = summoner.currentMatch.participants.map { participant ->
+            val entry = summoner.getLeaguePosition(summoner.currentMatch.queue)
+            CurrentGameSummonerResponse(
+                participant.summoner.name,
+                participant.summoner.accountId == id,
+                entry.tier.name,
+                entry.division.name,
+                participant.champion.id,
+                participant.team.side.id,
+            )
+        }
+        return CurrentGameResponse(summoner.currentMatch.mode.name, summoners)
     }
 }

@@ -1,5 +1,6 @@
 package com.badger.lolbyte.client
 
+import com.badger.lolbyte.current.CurrentGameResponse
 import com.badger.lolbyte.rank.RankResponse
 import com.badger.lolbyte.recent.RecentGameResponse
 import com.badger.lolbyte.statistics.TopChampsResponse
@@ -11,4 +12,5 @@ interface RiotApiClient {
     fun getRanks(id: String): List<RankResponse>
     fun getTopChamps(id: String, limit: Int): TopChampsResponse
     fun getChampName(id: Int): String
+    fun getCurrentGame(id: String): CurrentGameResponse
 }
