@@ -4,17 +4,19 @@ import com.badger.lolbyte.client.OriannaClient
 import com.badger.lolbyte.config.RiotProperties
 import com.badger.lolbyte.current.CurrentGameHandler
 import com.badger.lolbyte.current.CurrentGameResponse
+import com.badger.lolbyte.match.MatchHandler
+import com.badger.lolbyte.match.MatchResponse
 import com.badger.lolbyte.notification.NotificationHandler
 import com.badger.lolbyte.notification.NotificationResponse
 import com.badger.lolbyte.rank.RanksHandler
 import com.badger.lolbyte.rank.RanksResponse
 import com.badger.lolbyte.recent.RecentGamesHandler
 import com.badger.lolbyte.recent.RecentGamesResponse
-import com.badger.lolbyte.region.Region
 import com.badger.lolbyte.statistics.StatisticsHandler
 import com.badger.lolbyte.statistics.StatisticsResponse
 import com.badger.lolbyte.summoner.SummonerHandler
 import com.badger.lolbyte.summoner.SummonerResponse
+import com.badger.lolbyte.utils.Region
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -78,5 +80,13 @@ class ApiV4Controller(
         @PathVariable id: String,
     ): CurrentGameResponse {
         return CurrentGameHandler(client).getCurrentGame(id)
+    }
+
+    @GetMapping("/matches/{id}")
+    fun getMatch(
+        @PathVariable id: Long,
+        @RequestParam(name = "summonerId") summonerId: String
+    ): MatchResponse {
+        return MatchHandler(client).getMatch(id, summonerId)
     }
 }

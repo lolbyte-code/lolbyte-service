@@ -1,4 +1,4 @@
-package com.badger.lolbyte.region
+package com.badger.lolbyte.utils
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test

@@ -1,6 +1,7 @@
 package com.badger.lolbyte.recent
 
 import com.badger.lolbyte.client.RiotApiClient
+import com.badger.lolbyte.match.ItemResponse
 
 data class RecentGamesResponse(
     val total: Int,
@@ -23,12 +24,6 @@ data class RecentGameResponse(
     val items: List<ItemResponse>,
     val spells: List<Int>,
     val keystone: Int
-)
-
-data class ItemResponse(
-    val id: Int,
-    val name: String,
-    val desc: String
 )
 
 class RecentGamesHandler(private val client: RiotApiClient) {

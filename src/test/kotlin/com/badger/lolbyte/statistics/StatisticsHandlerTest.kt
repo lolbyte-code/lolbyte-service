@@ -1,7 +1,7 @@
 package com.badger.lolbyte.statistics
 
 import com.badger.lolbyte.client.TestClient
-import com.badger.lolbyte.recent.ItemResponse
+import com.badger.lolbyte.match.ItemResponse
 import com.badger.lolbyte.recent.RecentGameResponse
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
