@@ -1,4 +1,4 @@
-package com.badger.lolbyte.util
+package com.badger.lolbyte.region
 
 enum class Region(val region: String) {
     BRAZIL("br"),

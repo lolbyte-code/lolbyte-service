@@ -12,7 +12,7 @@ import com.badger.lolbyte.statistics.StatisticsHandler
 import com.badger.lolbyte.statistics.StatisticsResponse
 import com.badger.lolbyte.summoner.SummonerHandler
 import com.badger.lolbyte.summoner.SummonerResponse
-import com.badger.lolbyte.util.Region
+import com.badger.lolbyte.region.Region
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping

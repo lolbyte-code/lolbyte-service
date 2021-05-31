@@ -1,7 +1,7 @@
 package com.badger.lolbyte.summoner
 
 import com.badger.lolbyte.client.TestClient
-import com.badger.lolbyte.util.Region
+import com.badger.lolbyte.region.Region
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.util.UUID
