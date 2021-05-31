@@ -1,5 +1,6 @@
 package com.badger.lolbyte.client
 
+import com.badger.lolbyte.BadRequestException
 import com.badger.lolbyte.NotFoundException
 import com.badger.lolbyte.current.CurrentGameResponse
 import com.badger.lolbyte.match.Badge
@@ -13,6 +14,7 @@ import com.badger.lolbyte.statistics.TopChampResponse
 import com.badger.lolbyte.statistics.TopChampsResponse
 import com.badger.lolbyte.summoner.SummonerResponse
 import com.merakianalytics.orianna.Orianna
+import com.merakianalytics.orianna.types.common.Queue
 import com.merakianalytics.orianna.types.common.Region
 import com.merakianalytics.orianna.types.common.Side
 import com.merakianalytics.orianna.types.core.league.LeaguePositions
@@ -54,9 +56,14 @@ class OriannaClient(region: LolByteRegion, apiKey: String) : RiotApiClient {
         )
     }
 
-    override fun getRecentGames(id: String, limit: Int): List<RecentGameResponse> {
+    override fun getRecentGames(id: String, limit: Int, queueId: Int?): List<RecentGameResponse> {
         val summoner = Summoner.withAccountId(id).get()
-        val matchHistory = MatchHistory.forSummoner(summoner).withEndIndex(limit).get()
+        val matchHistoryBuilder = MatchHistory.forSummoner(summoner).withEndIndex(limit)
+        if (queueId != null) {
+            val queue = getQueue(queueId) ?: throw BadRequestException("Invalid queueId $queueId")
+            matchHistoryBuilder.withQueues(queue)
+        }
+        val matchHistory = matchHistoryBuilder.get()
         return matchHistory.map { match ->
             val participant = match.participants.first { it.summoner.accountId == id }
             val items = participant.items.map { item ->
@@ -83,6 +90,12 @@ class OriannaClient(region: LolByteRegion, apiKey: String) : RiotApiClient {
                 // TODO this is wrong
                 keystone = participant.primaryRunePath.id
             )
+        }
+    }
+
+    private fun getQueue(queueId: Int): Queue? {
+        return Queue.values().firstOrNull { queue ->
+            queue.id == queueId
         }
     }
 

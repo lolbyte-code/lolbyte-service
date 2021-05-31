@@ -25,7 +25,8 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
-// TODO: are 400/500 pages in browser ok?
+@ResponseStatus(code = HttpStatus.BAD_REQUEST)
+class BadRequestException(msg: String) : RuntimeException(msg)
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND)
 object NotFoundException : RuntimeException()
@@ -50,22 +51,22 @@ class ApiV4Controller(
         return SummonerHandler(client).getSummoner(name)
     }
 
-    // TODO gametype query param
     @GetMapping("/recentGames/{id}")
     fun getRecentGames(
         @PathVariable id: String,
-        @RequestParam(name = "limit", required = false) limit: Int?
+        @RequestParam(name = "limit", required = false) limit: Int?,
+        @RequestParam(name = "queueId", required = false) queueId: Int?,
     ): RecentGamesResponse {
-        return RecentGamesHandler(client).getRecentGames(id, limit)
+        return RecentGamesHandler(client).getRecentGames(id, limit, queueId)
     }
 
-    // TODO gametype query param
     @GetMapping("/statistics/{id}")
     fun getStatistics(
         @PathVariable id: String,
-        @RequestParam(name = "limit", required = false) limit: Int?
+        @RequestParam(name = "limit", required = false) limit: Int?,
+        @RequestParam(name = "queueId", required = false) queueId: Int?,
     ): StatisticsResponse {
-        return StatisticsHandler(client).getStatistics(id, limit)
+        return StatisticsHandler(client).getStatistics(id, limit, queueId)
     }
 
     @GetMapping("/ranks/{id}")

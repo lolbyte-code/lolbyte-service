@@ -49,8 +49,8 @@ class StatisticsHandler(private val client: RiotApiClient) {
         private const val defaultLimit = 20
     }
 
-    fun getStatistics(id: String, limit: Int?): StatisticsResponse {
-        val recentGames = client.getRecentGames(id, limit ?: defaultLimit)
+    fun getStatistics(id: String, limit: Int?, queueId: Int?): StatisticsResponse {
+        val recentGames = client.getRecentGames(id, limit ?: defaultLimit, queueId)
         var countWins = 0
         var countKills = 0
         var countDeaths = 0

@@ -21,7 +21,7 @@ class TestClient(
         return summonerResponse ?: Assertions.fail("No summonerResponse provided")
     }
 
-    override fun getRecentGames(id: String, limit: Int): List<RecentGameResponse> {
+    override fun getRecentGames(id: String, limit: Int, queueId: Int?): List<RecentGameResponse> {
         return recentGamesResponse ?: Assertions.fail("No recentGamesResponse provided")
     }
 

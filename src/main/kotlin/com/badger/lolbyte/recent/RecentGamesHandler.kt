@@ -31,8 +31,8 @@ class RecentGamesHandler(private val client: RiotApiClient) {
         private const val defaultLimit = 20
     }
 
-    fun getRecentGames(id: String, limit: Int?): RecentGamesResponse {
-        val games = client.getRecentGames(id, limit ?: defaultLimit)
+    fun getRecentGames(id: String, limit: Int?, queueId: Int?): RecentGamesResponse {
+        val games = client.getRecentGames(id, limit ?: defaultLimit, queueId)
         return RecentGamesResponse(games.size, games)
     }
 }

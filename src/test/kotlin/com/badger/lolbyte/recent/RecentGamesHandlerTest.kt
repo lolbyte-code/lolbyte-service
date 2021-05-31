@@ -27,7 +27,7 @@ class RecentGamesHandlerTest {
 
     @Test
     fun testGetRecentGames() {
-        val response = handler.getRecentGames("123", 10)
+        val response = handler.getRecentGames("123", 10, 420)
         Assertions.assertEquals(1, response.total)
         Assertions.assertEquals(1, response.data.size)
         Assertions.assertEquals(testResponse, response.data[0])
