@@ -1,9 +1,6 @@
-package com.badger.lolbyte.summoner
+package com.badger.lolbyte.recent
 
 import com.badger.lolbyte.client.TestClient
-import com.badger.lolbyte.recent.ItemResponse
-import com.badger.lolbyte.recent.RecentGameResponse
-import com.badger.lolbyte.recent.RecentGamesHandler
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
