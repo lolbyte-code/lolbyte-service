@@ -25,8 +25,7 @@ import com.merakianalytics.orianna.types.core.summoner.Summoner
 import com.badger.lolbyte.current.SummonerResponse as CurrentGameSummonerResponse
 import com.badger.lolbyte.utils.Region as LolByteRegion
 
-// TODO: make sure impls here are efficient
-class OriannaClient(region: LolByteRegion, apiKey: String) : RiotApiClient {
+class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
     init {
         Orianna.setRiotAPIKey(apiKey)
         val oriannaRegion = when (region) {
@@ -163,12 +162,13 @@ class OriannaClient(region: LolByteRegion, apiKey: String) : RiotApiClient {
         var redTeamDamage = 0
 
         val players = match.participants.mapIndexed { index, participant ->
-            val badges = mutableListOf<Badge>()
             val entry = participant.summoner.getLeaguePosition(match.queue)
             val items = participant.items.map { item ->
                 // TODO not html
                 ItemResponse(item.id, item.name, item.description)
             }
+            val spells = listOf(participant.summonerSpellD.id, participant.summonerSpellF.id)
+            val badges = mutableListOf<Badge>()
             if (participant.team.side == Side.BLUE) {
                 blueTeamGold += participant.stats.goldEarned
                 blueTeamKills += participant.stats.kills
@@ -211,7 +211,7 @@ class OriannaClient(region: LolByteRegion, apiKey: String) : RiotApiClient {
                 role = participant.role.name,
                 items = items,
                 trinket = items.last().id,
-                spells = listOf(participant.summonerSpellD.id, participant.summonerSpellF.id),
+                spells = spells,
                 keystone = participant.primaryRunePath.id,
                 badges = badges,
             )

@@ -8,6 +8,6 @@ class NotificationHandlerTest {
 
     @Test
     fun testGetNotification() {
-        Assertions.assertEquals("nah", handler.getNotification().alert)
+        Assertions.assertEquals("nah", handler.getNotification("nah").alert)
     }
 }

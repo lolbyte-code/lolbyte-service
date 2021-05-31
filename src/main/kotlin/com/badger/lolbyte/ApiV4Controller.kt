@@ -1,6 +1,7 @@
 package com.badger.lolbyte
 
 import com.badger.lolbyte.client.OriannaClient
+import com.badger.lolbyte.config.NotificationProperties
 import com.badger.lolbyte.config.RiotProperties
 import com.badger.lolbyte.current.CurrentGameHandler
 import com.badger.lolbyte.current.CurrentGameResponse
@@ -35,13 +36,14 @@ object NotFoundException : RuntimeException()
 @RequestMapping("api/v4")
 class ApiV4Controller(
     @RequestParam(name = "region") region: String?,
-    riotProperties: RiotProperties
+    riotProperties: RiotProperties,
+    private val notificationProperties: NotificationProperties,
 ) {
-    private val client = OriannaClient(Region.fromString(region), riotProperties.apiKey)
+    private val client = OriannaClient(riotProperties.apiKey, Region.fromString(region))
 
     @GetMapping("/notifications")
     fun getNotification(): NotificationResponse {
-        return NotificationHandler.getNotification()
+        return NotificationHandler.getNotification(notificationProperties.alert)
     }
 
     @GetMapping("/summoners/{name}")
