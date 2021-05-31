@@ -68,26 +68,28 @@ class StatisticsHandler(private val client: RiotApiClient) {
             countGames++
         }
 
+        val playerStats = PlayerStatsResponse(
+            type = "Last ${countGames.toInt()} Matches",
+            winPercentage = (countWins / countGames * 100).toInt(),
+            kills = countKills / countGames,
+            deaths = countDeaths / countGames,
+            assists = countAssists / countGames,
+            wards = countWards / countGames,
+        )
+
         val mostPlayedChamps = MostPlayedChampsResponse(
             champs.groupBy { it }.values.take(3).map { topChamp ->
                 val name = client.getChampName(topChamp.first())
-                MostPlayedChampResponse(topChamp.first(), name, topChamp.size)
+                MostPlayedChampResponse(
+                    id = topChamp.first(),
+                    name = name,
+                    gamesPlayed = topChamp.size
+                )
             }
         )
 
-        return StatisticsResponse(
-            listOf(
-                PlayerStatsResponse(
-                    type = "Last ${countGames.toInt()} Matches",
-                    winPercentage = (countWins / countGames * 100).toInt(),
-                    kills = countKills / countGames,
-                    deaths = countDeaths / countGames,
-                    assists = countAssists / countGames,
-                    wards = countWards / countGames,
-                ),
-                mostPlayedChamps,
-                client.getTopChamps(id, 3),
-            )
-        )
+        val topChamps = client.getTopChamps(id, 3)
+
+        return StatisticsResponse(listOf(playerStats, mostPlayedChamps, topChamps))
     }
 }

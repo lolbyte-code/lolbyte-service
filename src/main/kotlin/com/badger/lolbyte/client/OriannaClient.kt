@@ -10,27 +10,29 @@ import com.badger.lolbyte.statistics.TopChampsResponse
 import com.badger.lolbyte.summoner.SummonerResponse
 import com.merakianalytics.orianna.Orianna
 import com.merakianalytics.orianna.types.common.Region
+import com.merakianalytics.orianna.types.core.league.LeaguePositions
 import com.merakianalytics.orianna.types.core.match.MatchHistory
 import com.merakianalytics.orianna.types.core.staticdata.Champion
 import com.merakianalytics.orianna.types.core.summoner.Summoner
 import com.badger.lolbyte.current.SummonerResponse as CurrentGameSummonerResponse
+import com.badger.lolbyte.region.Region as LolByteRegion
 
 // TODO: make sure impls here are efficient
-class OriannaClient(region: com.badger.lolbyte.region.Region, apiKey: String) : RiotApiClient {
+class OriannaClient(region: LolByteRegion, apiKey: String) : RiotApiClient {
     init {
         Orianna.setRiotAPIKey(apiKey)
         val oriannaRegion = when (region) {
-            com.badger.lolbyte.region.Region.NORTH_AMERICA -> Region.NORTH_AMERICA
-            com.badger.lolbyte.region.Region.BRAZIL -> Region.BRAZIL
-            com.badger.lolbyte.region.Region.EUROPE_NORTH_EAST -> Region.EUROPE_NORTH_EAST
-            com.badger.lolbyte.region.Region.EUROPE_WEST -> Region.EUROPE_WEST
-            com.badger.lolbyte.region.Region.JAPAN -> Region.JAPAN
-            com.badger.lolbyte.region.Region.KOREA -> Region.KOREA
-            com.badger.lolbyte.region.Region.LATIN_AMERICA_NORTH -> Region.LATIN_AMERICA_NORTH
-            com.badger.lolbyte.region.Region.LATIN_AMERICA_SOUTH -> Region.LATIN_AMERICA_SOUTH
-            com.badger.lolbyte.region.Region.OCEANIA -> Region.OCEANIA
-            com.badger.lolbyte.region.Region.RUSSIA -> Region.RUSSIA
-            com.badger.lolbyte.region.Region.TURKEY -> Region.TURKEY
+            LolByteRegion.NORTH_AMERICA -> Region.NORTH_AMERICA
+            LolByteRegion.BRAZIL -> Region.BRAZIL
+            LolByteRegion.EUROPE_NORTH_EAST -> Region.EUROPE_NORTH_EAST
+            LolByteRegion.EUROPE_WEST -> Region.EUROPE_WEST
+            LolByteRegion.JAPAN -> Region.JAPAN
+            LolByteRegion.KOREA -> Region.KOREA
+            LolByteRegion.LATIN_AMERICA_NORTH -> Region.LATIN_AMERICA_NORTH
+            LolByteRegion.LATIN_AMERICA_SOUTH -> Region.LATIN_AMERICA_SOUTH
+            LolByteRegion.OCEANIA -> Region.OCEANIA
+            LolByteRegion.RUSSIA -> Region.RUSSIA
+            LolByteRegion.TURKEY -> Region.TURKEY
         }
         Orianna.setDefaultRegion(oriannaRegion)
     }
@@ -80,17 +82,16 @@ class OriannaClient(region: com.badger.lolbyte.region.Region, apiKey: String) : 
 
     override fun getRanks(id: String): List<RankResponse> {
         val summoner = Summoner.withAccountId(id).get()
-        // TODO: is there a better way to do this?
-        return summoner.leagues.map { league ->
-            val entry = summoner.getLeaguePosition(league.queue)
+        val leaguePositions = LeaguePositions.forSummoner(summoner).get()
+        return leaguePositions.map { entry ->
             RankResponse(
                 entry.tier.name,
                 entry.division.name,
                 entry.leaguePoints,
                 entry.wins,
-                league.name,
-                league.queue.tag,
-                league.queue.id,
+                entry.league.name,
+                entry.queue.tag,
+                entry.queue.id,
             )
         }
     }
