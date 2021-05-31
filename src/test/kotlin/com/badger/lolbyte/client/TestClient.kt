@@ -1,11 +1,18 @@
 package com.badger.lolbyte.client
 
+import com.badger.lolbyte.recent.RecentGameResponse
 import com.badger.lolbyte.summoner.SummonerResponse
-import com.badger.lolbyte.util.Region
-import java.util.UUID
+import org.junit.jupiter.api.Assertions
 
-object TestClient : RiotApiClient {
+class TestClient(
+    private val summonerResponse: SummonerResponse? = null,
+    private val recentGamesResponse: List<RecentGameResponse>? = null,
+) : RiotApiClient {
     override fun getSummoner(name: String): SummonerResponse {
-        return SummonerResponse(UUID.randomUUID().toString(), Region.NORTH_AMERICA.region, name, 420, 69)
+        return summonerResponse ?: Assertions.fail("No summonerResponse provided")
+    }
+
+    override fun getRecentGames(id: String, limit: Int): List<RecentGameResponse> {
+        return recentGamesResponse ?: Assertions.fail("No recentGamesResponse provided")
     }
 }
