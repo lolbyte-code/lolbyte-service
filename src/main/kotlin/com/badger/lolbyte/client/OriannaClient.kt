@@ -3,10 +3,13 @@ package com.badger.lolbyte.client
 import com.badger.lolbyte.rank.RankResponse
 import com.badger.lolbyte.recent.ItemResponse
 import com.badger.lolbyte.recent.RecentGameResponse
+import com.badger.lolbyte.statistics.TopChampResponse
+import com.badger.lolbyte.statistics.TopChampsResponse
 import com.badger.lolbyte.summoner.SummonerResponse
 import com.merakianalytics.orianna.Orianna
 import com.merakianalytics.orianna.types.common.Region
 import com.merakianalytics.orianna.types.core.match.MatchHistory
+import com.merakianalytics.orianna.types.core.staticdata.Champion
 import com.merakianalytics.orianna.types.core.summoner.Summoner
 
 class OriannaClient(region: com.badger.lolbyte.util.Region, apiKey: String) : RiotApiClient {
@@ -86,5 +89,22 @@ class OriannaClient(region: com.badger.lolbyte.util.Region, apiKey: String) : Ri
                 league.queue.id,
             )
         }
+    }
+
+    override fun getTopChamps(id: String, limit: Int): TopChampsResponse {
+        val summoner = Summoner.withAccountId(id).get()
+        val topChamps = summoner.championMasteries.take(limit).map { championMastery ->
+            TopChampResponse(
+                championMastery.champion.id,
+                championMastery.champion.name,
+                championMastery.level,
+                championMastery.points,
+            )
+        }
+        return TopChampsResponse(topChamps)
+    }
+
+    override fun getChampName(id: Int): String {
+        return Champion.withId(id).get().name
     }
 }
