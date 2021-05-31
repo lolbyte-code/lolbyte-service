@@ -4,6 +4,8 @@ import com.badger.lolbyte.client.OriannaClient
 import com.badger.lolbyte.config.RiotProperties
 import com.badger.lolbyte.notification.NotificationHandler
 import com.badger.lolbyte.notification.NotificationResponse
+import com.badger.lolbyte.rank.RanksHandler
+import com.badger.lolbyte.rank.RanksResponse
 import com.badger.lolbyte.recent.RecentGamesHandler
 import com.badger.lolbyte.recent.RecentGamesResponse
 import com.badger.lolbyte.statistics.StatisticsHandler
@@ -53,5 +55,12 @@ class ApiV4Controller(
         @RequestParam(name = "limit", required = false) limit: Int?
     ): StatisticsResponse {
         return StatisticsHandler(client).getStatistics(id, limit)
+    }
+
+    @GetMapping("/ranks/{id}")
+    fun getRanks(
+        @PathVariable id: String,
+    ): RanksResponse {
+        return RanksHandler(client).getRanks(id)
     }
 }

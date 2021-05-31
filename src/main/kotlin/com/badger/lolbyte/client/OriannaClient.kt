@@ -1,5 +1,6 @@
 package com.badger.lolbyte.client
 
+import com.badger.lolbyte.rank.RankResponse
 import com.badger.lolbyte.recent.ItemResponse
 import com.badger.lolbyte.recent.RecentGameResponse
 import com.badger.lolbyte.summoner.SummonerResponse
@@ -66,6 +67,23 @@ class OriannaClient(region: com.badger.lolbyte.util.Region, apiKey: String) : Ri
                 spells = spells,
                 // TODO this is wrong
                 keystone = participant.primaryRunePath.id
+            )
+        }
+    }
+
+    override fun getRanks(id: String): List<RankResponse> {
+        val summoner = Summoner.withAccountId(id).get()
+        // TODO: is there a better way to do this?
+        return summoner.leagues.map { league ->
+            val entry = summoner.getLeaguePosition(league.queue)
+            RankResponse(
+                entry.tier.name,
+                entry.division.name,
+                entry.leaguePoints,
+                entry.wins,
+                league.name,
+                league.queue.tag,
+                league.queue.id,
             )
         }
     }
