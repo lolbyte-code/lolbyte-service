@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
+// TODO: are 400/500 pages in browser ok?
+
 @ResponseStatus(code = HttpStatus.NOT_FOUND)
 object NotFoundException : RuntimeException()
 

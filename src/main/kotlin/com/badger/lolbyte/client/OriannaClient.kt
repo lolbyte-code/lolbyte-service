@@ -15,6 +15,7 @@ import com.merakianalytics.orianna.types.core.staticdata.Champion
 import com.merakianalytics.orianna.types.core.summoner.Summoner
 import com.badger.lolbyte.current.SummonerResponse as CurrentGameSummonerResponse
 
+// TODO: make sure impls here are efficient
 class OriannaClient(region: com.badger.lolbyte.region.Region, apiKey: String) : RiotApiClient {
     init {
         Orianna.setRiotAPIKey(apiKey)
