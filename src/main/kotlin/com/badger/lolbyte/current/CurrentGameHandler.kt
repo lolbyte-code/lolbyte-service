@@ -1,6 +1,7 @@
 package com.badger.lolbyte.current
 
 import com.badger.lolbyte.client.RiotApiClient
+import com.badger.lolbyte.utils.LolByteUtils
 
 data class CurrentGameResponse(
     val queueName: String,
@@ -21,7 +22,7 @@ data class SummonerResponse(
         division: String,
         champId: Int,
         teamId: Int
-    ) : this(name, selected, "$tier $division", champId, teamId)
+    ) : this(name, selected, LolByteUtils.generateRank(tier, division), champId, teamId)
 }
 
 class CurrentGameHandler(private val client: RiotApiClient) {

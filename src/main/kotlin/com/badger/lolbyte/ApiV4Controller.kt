@@ -13,8 +13,8 @@ import com.badger.lolbyte.rank.RanksHandler
 import com.badger.lolbyte.rank.RanksResponse
 import com.badger.lolbyte.recent.RecentGamesHandler
 import com.badger.lolbyte.recent.RecentGamesResponse
+import com.badger.lolbyte.statistics.StatisticResponse
 import com.badger.lolbyte.statistics.StatisticsHandler
-import com.badger.lolbyte.statistics.StatisticsResponse
 import com.badger.lolbyte.summoner.SummonerHandler
 import com.badger.lolbyte.summoner.SummonerResponse
 import com.badger.lolbyte.utils.Region
@@ -67,7 +67,7 @@ class ApiV4Controller(
         @PathVariable id: String,
         @RequestParam(name = "limit", required = false) limit: Int?,
         @RequestParam(name = "queueId", required = false) queueId: Int?,
-    ): StatisticsResponse {
+    ): List<StatisticResponse> {
         return StatisticsHandler(client).getStatistics(id, limit, queueId)
     }
 

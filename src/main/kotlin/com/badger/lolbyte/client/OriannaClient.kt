@@ -22,7 +22,9 @@ import com.merakianalytics.orianna.types.core.match.Match
 import com.merakianalytics.orianna.types.core.match.MatchHistory
 import com.merakianalytics.orianna.types.core.staticdata.Champion
 import com.merakianalytics.orianna.types.core.summoner.Summoner
+import kotlin.math.max
 import com.badger.lolbyte.current.SummonerResponse as CurrentGameSummonerResponse
+import com.badger.lolbyte.utils.Queue as LolByteQueue
 import com.badger.lolbyte.utils.Region as LolByteRegion
 
 class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
@@ -58,7 +60,7 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
     override fun getRecentGames(id: String, limit: Int, queueId: Int?): List<RecentGameResponse> {
         val summoner = Summoner.withAccountId(id).get()
         val matchHistoryBuilder = MatchHistory.forSummoner(summoner).withEndIndex(limit)
-        if (queueId != null) {
+        if (queueId != null && queueId != 0) {
             val queue = getQueue(queueId) ?: throw BadRequestException("Invalid queueId $queueId")
             matchHistoryBuilder.withQueues(queue)
         }
@@ -80,14 +82,12 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
                 deaths = participant.stats.deaths,
                 assists = participant.stats.assists,
                 wards = participant.stats.wardsPlaced,
-                cs = participant.stats.creepScore,
-                // TODO this is wrong
-                queueName = match.queue.tag,
-                duration = match.duration.millis,
-                items = items,
+                cs = participant.stats.creepScore + participant.stats.neutralMinionsKilled,
+                queueName = LolByteQueue.getTag(match.queue.id),
+                duration = match.duration.standardMinutes,
+                items = items.subList(0, items.size - 1),
                 spells = spells,
-                // TODO this is wrong
-                keystone = participant.primaryRunePath.id
+                keystone = participant.runeStats.first().rune.id,
             )
         }
     }
@@ -103,12 +103,12 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
         val leaguePositions = LeaguePositions.forSummoner(summoner).get()
         return leaguePositions.map { entry ->
             RankResponse(
-                entry.tier.name,
+                entry.tier.name.toLowerCase(),
                 entry.division.name,
                 entry.leaguePoints,
                 entry.wins,
                 entry.league.name,
-                entry.queue.tag,
+                LolByteQueue.getTag(entry.queue.id),
                 entry.queue.id,
             )
         }
@@ -135,7 +135,11 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
         val summoner = Summoner.withAccountId(id).get()
         if (!summoner.isInGame) throw NotFoundException
         val summoners = summoner.currentMatch.participants.map { participant ->
-            val entry = summoner.getLeaguePosition(summoner.currentMatch.queue)
+            val entry = try {
+                participant.summoner.getLeaguePosition(summoner.currentMatch.queue)
+            } catch (e: IllegalArgumentException) {
+                participant.summoner.getLeaguePosition(Queue.RANKED_SOLO)
+            }
             CurrentGameSummonerResponse(
                 participant.summoner.name,
                 participant.summoner.accountId == id,
@@ -145,7 +149,7 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
                 participant.team.side.id,
             )
         }
-        return CurrentGameResponse(summoner.currentMatch.mode.name, summoners)
+        return CurrentGameResponse(LolByteQueue.getTag(summoner.currentMatch.queue.id), summoners)
     }
 
     override fun getMatch(id: Long, summonerId: String): MatchResponse {
@@ -162,7 +166,11 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
         var redTeamDamage = 0
 
         val players = match.participants.mapIndexed { index, participant ->
-            val entry = participant.summoner.getLeaguePosition(match.queue)
+            val entry = try {
+                participant.summoner.getLeaguePosition(match.queue)
+            } catch (e: IllegalArgumentException) {
+                participant.summoner.getLeaguePosition(Queue.RANKED_SOLO)
+            }
             val items = participant.items.map { item ->
                 // TODO not html
                 ItemResponse(item.id, item.name, item.description)
@@ -193,8 +201,7 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
                 name = participant.summoner.name,
                 tier = entry.tier.name,
                 division = entry.division.name,
-                participantId = index,
-                selectedSummoner = participant.summoner.accountId == summonerId,
+                participantId = index + 1,
                 teamId = participant.team.side.id,
                 champId = participant.champion.id,
                 champName = participant.champion.name,
@@ -203,16 +210,16 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
                 assists = participant.stats.assists,
                 gold = participant.stats.goldEarned,
                 damage = participant.stats.damageDealtToChampions,
-                cs = participant.stats.creepScore,
+                cs = participant.stats.creepScore + participant.stats.neutralMinionsKilled,
                 level = participant.stats.championLevel,
                 win = participant.team.isWinner,
                 wards = participant.stats.wardsPlaced,
                 lane = participant.lane.name,
                 role = participant.role.name,
-                items = items,
+                items = items.subList(0, items.size - 1),
                 trinket = items.last().id,
                 spells = spells,
-                keystone = participant.primaryRunePath.id,
+                keystone = participant.runeStats.first().rune.id,
                 badges = badges,
             )
         }
@@ -268,19 +275,15 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
 
         return MatchResponse(
             id = match.id,
-            // TODO wrong
-            queueName = match.mode.name,
-            timestamp = match.creationTime.millis,
-            duration = match.duration.millis,
             blueTeam = blueTeam,
             redTeam = redTeam,
-            players = players,
+            players = players.sortedBy { it.order },
         )
     }
 
     private fun computeKda(player: PlayerResponse?): Double {
         if (player == null) return 0.0
-        return player.kills.toDouble() + player.assists.toDouble() / player.deaths.toDouble()
+        return player.kills.toDouble() + player.assists.toDouble() / max(player.deaths.toDouble(), 1.0)
     }
 
     private fun divideInts(numerator: Int, denominator: Int): Int {

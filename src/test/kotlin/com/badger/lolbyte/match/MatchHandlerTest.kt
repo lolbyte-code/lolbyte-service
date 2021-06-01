@@ -7,9 +7,6 @@ import org.junit.jupiter.api.Test
 class MatchHandlerTest {
     private val testResponse = MatchResponse(
         id = 123,
-        queueName = "Solo Q",
-        timestamp = 1234,
-        duration = 4567,
         blueTeam = TeamResponse(
             id = 100,
             win = true,
@@ -41,7 +38,6 @@ class MatchHandlerTest {
                 tier = "Challenger",
                 division = "I",
                 participantId = 1,
-                selectedSummoner = true,
                 teamId = 100,
                 champId = 69,
                 champName = "Draven",

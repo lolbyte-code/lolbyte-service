@@ -2,10 +2,6 @@ package com.badger.lolbyte.statistics
 
 import com.badger.lolbyte.client.RiotApiClient
 
-data class StatisticsResponse(
-    val statistics: List<StatisticResponse>,
-)
-
 interface StatisticResponse {
     val type: String
 }
@@ -49,7 +45,7 @@ class StatisticsHandler(private val client: RiotApiClient) {
         private const val defaultLimit = 20
     }
 
-    fun getStatistics(id: String, limit: Int?, queueId: Int?): StatisticsResponse {
+    fun getStatistics(id: String, limit: Int?, queueId: Int?): List<StatisticResponse> {
         val recentGames = client.getRecentGames(id, limit ?: defaultLimit, queueId)
         var countWins = 0
         var countKills = 0
@@ -90,6 +86,6 @@ class StatisticsHandler(private val client: RiotApiClient) {
 
         val topChamps = client.getTopChamps(id, 3)
 
-        return StatisticsResponse(listOf(playerStats, mostPlayedChamps, topChamps))
+        return listOf(playerStats, mostPlayedChamps, topChamps)
     }
 }

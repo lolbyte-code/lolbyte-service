@@ -79,8 +79,8 @@ class StatisticsHandlerTest {
     @Test
     fun testGetStatistics() {
         val response = handler.getStatistics("123", 3, null)
-        Assertions.assertEquals(3, response.statistics.size)
-        response.statistics.forEach { statistic ->
+        Assertions.assertEquals(3, response.size)
+        response.forEach { statistic ->
             val expected = when (statistic) {
                 is PlayerStatsResponse -> PlayerStatsResponse(
                     type = "Last 3 Matches",

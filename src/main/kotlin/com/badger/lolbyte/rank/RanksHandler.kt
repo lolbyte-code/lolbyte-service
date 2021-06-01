@@ -1,6 +1,7 @@
 package com.badger.lolbyte.rank
 
 import com.badger.lolbyte.client.RiotApiClient
+import com.badger.lolbyte.utils.LolByteUtils
 import kotlin.math.floor
 
 data class RanksResponse(val total: Int, val data: List<RankResponse>)
@@ -25,7 +26,7 @@ data class RankResponse(
         queueId: Int
     ) : this(
         tier = tier,
-        rank = "$tier $division",
+        rank = LolByteUtils.generateRank(tier, division),
         score = getLolByteScore(tier, division, points),
         wins = wins,
         leagueName = leagueName,
@@ -44,7 +45,7 @@ private fun getLolByteScore(tier: String, division: String, points: Int): Int {
         else -> 0
     }
     val scale = divisionScale * 70 + .7 * points
-    return when (tier) {
+    return when (tier.toUpperCase()) {
         "IRON" -> floor(450 + scale).toInt()
         "BRONZE" -> floor(800 + scale).toInt()
         "SILVER" -> floor(1150 + scale).toInt()

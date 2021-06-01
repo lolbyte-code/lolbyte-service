@@ -2,13 +2,11 @@ package com.badger.lolbyte.match
 
 import com.badger.lolbyte.client.RiotApiClient
 import com.badger.lolbyte.utils.LaneRole
+import com.badger.lolbyte.utils.LolByteUtils
 
 // TODO review all response schemas
 data class MatchResponse(
     val id: Long,
-    val queueName: String,
-    val timestamp: Long,
-    val duration: Long,
     val blueTeam: TeamResponse,
     val redTeam: TeamResponse,
     val players: List<PlayerResponse>,
@@ -19,7 +17,6 @@ data class PlayerResponse(
     val name: String,
     val rank: String,
     val participantId: Int,
-    val selectedSummoner: Boolean,
     val teamId: Int,
     val champId: Int,
     val champName: String,
@@ -49,7 +46,6 @@ data class PlayerResponse(
         tier: String,
         division: String,
         participantId: Int,
-        selectedSummoner: Boolean,
         teamId: Int,
         champId: Int,
         champName: String,
@@ -72,9 +68,8 @@ data class PlayerResponse(
     ) : this(
         id = id,
         name = name,
-        rank = "$tier $division",
+        rank = LolByteUtils.generateRank(tier, division),
         participantId = participantId,
-        selectedSummoner = selectedSummoner,
         teamId = teamId,
         champId = champId,
         champName = champName,
@@ -87,7 +82,7 @@ data class PlayerResponse(
         level = level,
         win = win,
         wards = wards,
-        order = teamId * LaneRole.getOrder(lane, role),
+        order = ("${(teamId / 100)}${LaneRole.getOrder(lane, role)}").toInt(),
         lane = lane,
         role = role,
         items = items,
