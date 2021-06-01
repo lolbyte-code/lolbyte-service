@@ -16,3 +16,4 @@ fun main(args: Array<String>) {
 
 // TODO
 // most played is wrong champ
+// series
