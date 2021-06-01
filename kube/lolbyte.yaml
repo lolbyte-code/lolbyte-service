@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lolbyte
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lolbyte
+  template:
+    metadata:
+      labels:
+        app: lolbyte
+    spec:
+      containers:
+        - name: app
+          image: acschott/lolbyte-service:latest
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lolbyte
+spec:
+  selector:
+    app: lolbyte
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer
