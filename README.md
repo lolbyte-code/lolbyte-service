@@ -1,2 +1,2 @@
-# LolByte API Next
+# LolByte Service
 Next generation LolByte API
