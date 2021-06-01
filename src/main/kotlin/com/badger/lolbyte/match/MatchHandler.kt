@@ -4,7 +4,6 @@ import com.badger.lolbyte.client.RiotApiClient
 import com.badger.lolbyte.utils.LaneRole
 import com.badger.lolbyte.utils.LolByteUtils
 
-// TODO review all response schemas
 data class MatchResponse(
     val id: Long,
     val blueTeam: TeamResponse,
