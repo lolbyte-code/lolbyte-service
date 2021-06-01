@@ -101,6 +101,19 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
     override fun getRanks(id: String): List<RankResponse> {
         val summoner = Summoner.withAccountId(id).get()
         val leaguePositions = LeaguePositions.forSummoner(summoner).get()
+        if (leaguePositions.isEmpty()) {
+            return listOf(
+                RankResponse(
+                    tier = "unranked",
+                    division = "",
+                    points = 0,
+                    wins = 0,
+                    leagueName = "",
+                    queueName = "",
+                    queueId = 0,
+                )
+            )
+        }
         return leaguePositions.map { entry ->
             RankResponse(
                 entry.tier.name.toLowerCase(),
@@ -143,8 +156,8 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
             CurrentGameSummonerResponse(
                 participant.summoner.name,
                 participant.summoner.accountId == id,
-                entry.tier.name,
-                entry.division.name,
+                entry?.tier?.name ?: "unranked",
+                entry?.division?.name ?: "",
                 participant.champion.id,
                 participant.team.side.id,
             )
@@ -199,8 +212,8 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
             PlayerResponse(
                 id = participant.summoner.accountId,
                 name = participant.summoner.name,
-                tier = entry.tier.name,
-                division = entry.division.name,
+                tier = entry?.tier?.name ?: "unranked",
+                division = entry?.division?.name ?: "",
                 participantId = index + 1,
                 teamId = participant.team.side.id,
                 champId = participant.champion.id,
