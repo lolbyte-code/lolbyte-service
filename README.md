@@ -24,3 +24,11 @@ Update `kube/lolbyte.yaml` with the above version and run:
 ```bash
 > kubectl apply -f kube/lolbyte.yaml
 ```
+
+### Useful K8s commands
+
+Restart deployment:
+
+```bash
+> kubectl rollout restart deployment lolbyte
+```
