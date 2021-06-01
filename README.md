@@ -6,7 +6,7 @@ Next generation LolByte service which aims to fully replace the [lolbyteapi](htt
 
 ## Architecture
 
-LolByte is a RESTful web service written in Kotlin built using [Spring Boot](https://spring.io/projects/spring-boot). It is currently deployed using the managed Kubernetes service on Digital Ocean. You can access the live production version at: https://lolbyte.service/api/v4/
+LolByte is a RESTful web service written in Kotlin and uses [Spring Boot](https://spring.io/projects/spring-boot). It is currently deployed using the managed Kubernetes service on Digital Ocean. You can access the live production version at: https://lolbyte.service/api/v4/
 
 ## Dependencies
 
