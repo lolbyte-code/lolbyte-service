@@ -13,7 +13,3 @@ class LolByteApplication
 fun main(args: Array<String>) {
     runApplication<LolByteApplication>(*args)
 }
-
-// TODO
-// most played is wrong champ
-// series

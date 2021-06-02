@@ -48,6 +48,7 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
 
     override fun getSummoner(name: String): SummonerResponse {
         val summoner = Summoner.named(name).get()
+        if (summoner.accountId == null) throw NotFoundException
         return SummonerResponse(
             summoner.accountId,
             summoner.region.tag.toLowerCase(),
@@ -85,7 +86,7 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
                 cs = participant.stats.creepScore + participant.stats.neutralMinionsKilled,
                 queueName = LolByteQueue.getTag(match.queue.id),
                 duration = match.duration.standardMinutes,
-                items = items.subList(0, items.size - 1),
+                items = if (items.isNotEmpty()) items.subList(0, items.size - 1) else listOf(),
                 spells = spells,
                 keystone = participant.runeStats.first().rune.id,
             )
@@ -108,6 +109,7 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
                     division = "",
                     points = 0,
                     wins = 0,
+                    series = "",
                     leagueName = "",
                     queueName = "",
                     queueId = 0,
@@ -115,14 +117,20 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
             )
         }
         return leaguePositions.map { entry ->
+            val series = if (entry.promos != null) {
+                "${entry.promos.wins}W-${entry.promos.losses}L"
+            } else {
+                ""
+            }
             RankResponse(
-                entry.tier.name.toLowerCase(),
-                entry.division.name,
-                entry.leaguePoints,
-                entry.wins,
-                entry.league.name,
-                LolByteQueue.getTag(entry.queue.id),
-                entry.queue.id,
+                tier = entry.tier.name.toLowerCase(),
+                division = entry.division.name,
+                points = entry.leaguePoints,
+                series = series,
+                wins = entry.wins,
+                leagueName = entry.league.name,
+                queueName = LolByteQueue.getTag(entry.queue.id),
+                queueId = entry.queue.id,
             )
         }
     }
@@ -229,7 +237,7 @@ class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
                 wards = participant.stats.wardsPlaced,
                 lane = participant.lane.name,
                 role = participant.role.name,
-                items = items.subList(0, items.size - 1),
+                items = if (items.isNotEmpty()) items.subList(0, items.size - 1) else listOf(),
                 trinket = items.last().id,
                 spells = spells,
                 keystone = participant.runeStats.first().rune.id,

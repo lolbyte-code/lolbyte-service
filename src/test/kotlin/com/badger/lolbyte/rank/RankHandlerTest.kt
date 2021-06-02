@@ -9,6 +9,7 @@ class RankHandlerTest {
         tier = "GOLD",
         division = "II",
         points = 12,
+        series = "",
         wins = 100,
         leagueName = "Tony's Tigers",
         queueName = "Solo Q",

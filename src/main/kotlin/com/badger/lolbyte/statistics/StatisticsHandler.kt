@@ -2,24 +2,23 @@ package com.badger.lolbyte.statistics
 
 import com.badger.lolbyte.client.RiotApiClient
 
-interface StatisticResponse {
-    val type: String
-}
+data class StatisticsResponse(
+    val playerStats: PlayerStatsResponse,
+    val mostPlayedChamps: MostPlayedChampsResponse,
+    val topChamps: TopChampsResponse,
+)
 
 data class PlayerStatsResponse(
-    override val type: String,
     val winPercentage: Int,
     val kills: Double,
     val deaths: Double,
     val assists: Double,
     val wards: Double,
-) : StatisticResponse
+)
 
 data class MostPlayedChampsResponse(
     val champs: List<MostPlayedChampResponse>,
-) : StatisticResponse {
-    override val type: String = "Most Played (Recent)"
-}
+)
 
 data class MostPlayedChampResponse(
     val id: Int,
@@ -29,9 +28,7 @@ data class MostPlayedChampResponse(
 
 data class TopChampsResponse(
     val champs: List<TopChampResponse>,
-) : StatisticResponse {
-    override val type: String = "Top Champions (Mastery)"
-}
+)
 
 data class TopChampResponse(
     val id: Int,
@@ -45,7 +42,7 @@ class StatisticsHandler(private val client: RiotApiClient) {
         private const val defaultLimit = 20
     }
 
-    fun getStatistics(id: String, limit: Int?, queueId: Int?): List<StatisticResponse> {
+    fun getStatistics(id: String, limit: Int?, queueId: Int?): StatisticsResponse {
         val recentGames = client.getRecentGames(id, limit ?: defaultLimit, queueId)
         var countWins = 0
         var countKills = 0
@@ -64,17 +61,26 @@ class StatisticsHandler(private val client: RiotApiClient) {
             countGames++
         }
 
-        val playerStats = PlayerStatsResponse(
-            type = "Last ${countGames.toInt()} Matches",
-            winPercentage = (countWins / countGames * 100).toInt(),
-            kills = countKills / countGames,
-            deaths = countDeaths / countGames,
-            assists = countAssists / countGames,
-            wards = countWards / countGames,
-        )
+        val playerStats = if (countGames > 0) {
+            PlayerStatsResponse(
+                winPercentage = (countWins / countGames * 100).toInt(),
+                kills = countKills / countGames,
+                deaths = countDeaths / countGames,
+                assists = countAssists / countGames,
+                wards = countWards / countGames,
+            )
+        } else {
+            PlayerStatsResponse(
+                winPercentage = 0,
+                kills = 0.0,
+                deaths = 0.0,
+                assists = 0.0,
+                wards = 0.0,
+            )
+        }
 
         val mostPlayedChamps = MostPlayedChampsResponse(
-            champs.groupBy { it }.values.take(3).map { topChamp ->
+            champs.groupBy { it }.values.sortedByDescending { it.size }.take(3).map { topChamp ->
                 val name = client.getChampName(topChamp.first())
                 MostPlayedChampResponse(
                     id = topChamp.first(),
@@ -86,6 +92,10 @@ class StatisticsHandler(private val client: RiotApiClient) {
 
         val topChamps = client.getTopChamps(id, 3)
 
-        return listOf(playerStats, mostPlayedChamps, topChamps)
+        return StatisticsResponse(
+            playerStats = playerStats,
+            mostPlayedChamps = mostPlayedChamps,
+            topChamps = topChamps
+        )
     }
 }

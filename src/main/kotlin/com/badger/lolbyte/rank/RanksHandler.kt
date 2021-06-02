@@ -13,6 +13,7 @@ data class RankResponse(
     val wins: Int,
     val leagueName: String,
     val lp: Int,
+    val series: String,
     val queueName: String,
     val queueId: Int,
 ) {
@@ -20,6 +21,7 @@ data class RankResponse(
         tier: String,
         division: String,
         points: Int,
+        series: String,
         wins: Int,
         leagueName: String,
         queueName: String,
@@ -31,6 +33,7 @@ data class RankResponse(
         wins = wins,
         leagueName = leagueName,
         lp = points,
+        series = series,
         queueName = queueName,
         queueId = queueId
     )
