@@ -64,7 +64,7 @@ enum class Queue(val tag: String, val id: Int) {
     NEXUS_BLITZ("Nexus Blitz", 1300);
 
     companion object {
-        fun getTag(id: Int): String {
+        fun getTag(id: Int?): String {
             return values().firstOrNull { it.id == id }?.tag ?: "Unknown"
         }
     }
