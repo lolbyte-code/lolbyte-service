@@ -2,7 +2,9 @@
 
 ## Description
 
-Next generation LolByte service which aims to fully replace the [lolbyteapi](https://github.com/ACSchott526/lolbyteapi).
+Next generation LolByte service which aims to fully replace the [lolbyteapi](https://github.com/ACSchott526/lolbyteapi). 
+
+API Documentation: https://lolbyte.services/swagger-ui
 
 ## Architecture
 
@@ -52,6 +54,5 @@ Restart deployment:
 
 #### TODO
 
-- [ ] Document APIs in Swagger
 - [ ] Metrics / Monitoring
 - [ ] CI / CD integrated w/ GitHub repo

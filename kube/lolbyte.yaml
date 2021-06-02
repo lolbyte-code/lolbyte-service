@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: registry.digitalocean.com/lolbyte/lolbyte-service:0.0.3
+          image: registry.digitalocean.com/lolbyte/lolbyte-service:0.0.4
           ports:
             - containerPort: 8080
           imagePullPolicy: Always
