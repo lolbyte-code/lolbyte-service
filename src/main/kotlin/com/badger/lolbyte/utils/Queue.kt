@@ -30,7 +30,6 @@ enum class Queue(val tag: String, val id: Int) {
     ARURF_5X5("AR Ultra Rapid Fire", 318),
     ARSR_5x5("ARSR", 325),
     TEAM_BUILDER_DRAFT_UNRANKED_5x5("Unranked Dynamic Queue", 400),
-    NORMAL_5x5_DRAFT("Normal 5v5 Draft", 400),
     TEAM_BUILDER_DRAFT_RANKED_5x5("Ranked Dynamic Queue", 410),
     TEAM_BUILDER_RANKED_SOLO("Ranked Solo/Duo Queue", 420),
     RANKED_SOLO_5x5("Ranked Solo/Duo Queue", 420),

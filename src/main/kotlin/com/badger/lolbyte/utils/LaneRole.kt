@@ -9,16 +9,9 @@ enum class LaneRole(val lane: String, val role: String, val order: Int) {
 
     companion object {
         fun getOrder(lane: String, role: String): Int {
-            for (l in values()) {
-                if (l.lane == lane && lane != MARKSMAN.lane) {
-                    return l.order
-                } else {
-                    if (l.lane == lane && l.role == role) {
-                        return l.order
-                    }
-                }
-            }
-            return TOP.order
+            return values().find {
+                (it.lane == lane && lane != MARKSMAN.lane) || (it.lane == lane && it.role == role)
+            }?.order ?: TOP.order
         }
     }
 }
