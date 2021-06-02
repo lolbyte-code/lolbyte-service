@@ -4,7 +4,7 @@
 
 Next generation LolByte service which aims to fully replace the [lolbyteapi](https://github.com/ACSchott526/lolbyteapi). 
 
-API Documentation: https://lolbyte.services/swagger-ui
+API Documentation: https://lolbyte.services/swagger-ui/#/
 
 ## Architecture
 
