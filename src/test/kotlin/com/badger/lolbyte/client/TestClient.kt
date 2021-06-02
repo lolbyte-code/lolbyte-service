@@ -6,6 +6,7 @@ import com.badger.lolbyte.rank.RankResponse
 import com.badger.lolbyte.recent.RecentGameResponse
 import com.badger.lolbyte.statistics.TopChampsResponse
 import com.badger.lolbyte.summoner.SummonerResponse
+import com.badger.lolbyte.utils.Region
 import org.junit.jupiter.api.Assertions
 
 class TestClient(
@@ -17,6 +18,8 @@ class TestClient(
     private val currentGameResponse: CurrentGameResponse? = null,
     private val matchResponse: MatchResponse? = null,
 ) : RiotApiClient {
+    override fun setRegion(region: Region) {}
+
     override fun getSummoner(name: String): SummonerResponse {
         return summonerResponse ?: Assertions.fail("No summonerResponse provided")
     }

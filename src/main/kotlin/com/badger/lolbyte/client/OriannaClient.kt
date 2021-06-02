@@ -27,9 +27,12 @@ import com.badger.lolbyte.current.SummonerResponse as CurrentGameSummonerRespons
 import com.badger.lolbyte.utils.Queue as LolByteQueue
 import com.badger.lolbyte.utils.Region as LolByteRegion
 
-class OriannaClient(apiKey: String, region: LolByteRegion) : RiotApiClient {
+class OriannaClient(apiKey: String) : RiotApiClient {
     init {
         Orianna.setRiotAPIKey(apiKey)
+    }
+
+    override fun setRegion(region: com.badger.lolbyte.utils.Region) {
         val oriannaRegion = when (region) {
             LolByteRegion.NORTH_AMERICA -> Region.NORTH_AMERICA
             LolByteRegion.BRAZIL -> Region.BRAZIL

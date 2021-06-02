@@ -35,11 +35,10 @@ object NotFoundException : RuntimeException()
 @RestController
 @RequestMapping("api/v4")
 class ApiV4Controller(
-    @RequestParam(name = "region") region: String?,
     riotProperties: RiotProperties,
     private val notificationProperties: NotificationProperties,
 ) {
-    private val client = OriannaClient(riotProperties.apiKey, Region.fromString(region))
+    private val client = OriannaClient(riotProperties.apiKey)
 
     @GetMapping("/notifications")
     fun getNotification(): NotificationResponse {
@@ -48,8 +47,10 @@ class ApiV4Controller(
 
     @GetMapping("/summoners/{name}")
     fun getSummoner(
-        @PathVariable name: String
+        @PathVariable name: String,
+        @RequestParam(name = "region", required = false) region: String?,
     ): SummonerResponse {
+        client.setRegion(Region.fromString(region))
         return SummonerHandler(client).getSummoner(name)
     }
 
@@ -58,7 +59,9 @@ class ApiV4Controller(
         @PathVariable id: String,
         @RequestParam(name = "limit", required = false) limit: Int?,
         @RequestParam(name = "queueId", required = false) queueId: Int?,
+        @RequestParam(name = "region", required = false) region: String?,
     ): RecentGamesResponse {
+        client.setRegion(Region.fromString(region))
         return RecentGamesHandler(client).getRecentGames(id, limit, queueId)
     }
 
@@ -67,29 +70,37 @@ class ApiV4Controller(
         @PathVariable id: String,
         @RequestParam(name = "limit", required = false) limit: Int?,
         @RequestParam(name = "queueId", required = false) queueId: Int?,
+        @RequestParam(name = "region", required = false) region: String?,
     ): StatisticsResponse {
+        client.setRegion(Region.fromString(region))
         return StatisticsHandler(client).getStatistics(id, limit, queueId)
     }
 
     @GetMapping("/ranks/{id}")
     fun getRanks(
         @PathVariable id: String,
+        @RequestParam(name = "region", required = false) region: String?,
     ): RanksResponse {
+        client.setRegion(Region.fromString(region))
         return RanksHandler(client).getRanks(id)
     }
 
     @GetMapping("/current/{id}")
     fun getCurrentGame(
         @PathVariable id: String,
+        @RequestParam(name = "region", required = false) region: String?,
     ): CurrentGameResponse {
+        client.setRegion(Region.fromString(region))
         return CurrentGameHandler(client).getCurrentGame(id)
     }
 
     @GetMapping("/matches/{id}")
     fun getMatch(
         @PathVariable id: Long,
-        @RequestParam(name = "summonerId") summonerId: String
+        @RequestParam(name = "summonerId") summonerId: String,
+        @RequestParam(name = "region", required = false) region: String?,
     ): MatchResponse {
+        client.setRegion(Region.fromString(region))
         return MatchHandler(client).getMatch(id, summonerId)
     }
 }
