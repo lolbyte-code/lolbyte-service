@@ -72,7 +72,6 @@ class OriannaClient(apiKey: String) : RiotApiClient {
         return matchHistory.map { match ->
             val participant = match.participants.first { it.summoner.accountId == id }
             val items = participant.items.map { item ->
-                // TODO description isnt html
                 ItemResponse(item.id, item.name, item.description)
             }
             val spells = listOf(participant.summonerSpellD.id, participant.summonerSpellF.id)
@@ -196,7 +195,6 @@ class OriannaClient(apiKey: String) : RiotApiClient {
                 participant.summoner.getLeaguePosition(Queue.RANKED_SOLO)
             }
             val items = participant.items.map { item ->
-                // TODO not html
                 ItemResponse(item.id, item.name, item.description)
             }
             val spells = listOf(participant.summonerSpellD.id, participant.summonerSpellF.id)
@@ -299,6 +297,9 @@ class OriannaClient(apiKey: String) : RiotApiClient {
 
         return MatchResponse(
             id = match.id,
+            queueName = LolByteQueue.getTag(match?.queue?.id),
+            duration = match.duration.standardMinutes,
+            timestamp = match.creationTime.millis,
             blueTeam = blueTeam,
             redTeam = redTeam,
             players = players.sortedBy { it.order },

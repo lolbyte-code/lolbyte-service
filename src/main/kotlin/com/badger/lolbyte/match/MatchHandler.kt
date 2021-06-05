@@ -6,6 +6,9 @@ import com.badger.lolbyte.utils.LolByteUtils
 
 data class MatchResponse(
     val id: Long,
+    val queueName: String,
+    val duration: Long,
+    val timestamp: Long,
     val blueTeam: TeamResponse,
     val redTeam: TeamResponse,
     val players: List<PlayerResponse>,

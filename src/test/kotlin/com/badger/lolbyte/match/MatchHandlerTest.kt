@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test
 class MatchHandlerTest {
     private val testResponse = MatchResponse(
         id = 123,
+        queueName = "Solo Q",
+        duration = 12,
+        timestamp = 1234,
         blueTeam = TeamResponse(
             id = 100,
             win = true,
