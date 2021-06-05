@@ -85,7 +85,8 @@ class StatisticsHandlerTest {
                 kills = 7.666666666666667,
                 deaths = 16.0,
                 assists = 12.666666666666666,
-                wards = 36.0
+                wards = 36.0,
+                games = 3,
             ),
             response.playerStats
         )

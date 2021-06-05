@@ -72,7 +72,7 @@ class OriannaClient(apiKey: String) : RiotApiClient {
         return matchHistory.map { match ->
             val participant = match.participants.first { it.summoner.accountId == id }
             val items = participant.items.map { item ->
-                ItemResponse(item.id, item.name, item.description)
+                ItemResponse(item.id, item.name ?: "Unknown Item", item.description ?: "")
             }
             val spells = listOf(participant.summonerSpellD.id, participant.summonerSpellF.id)
             RecentGameResponse(
@@ -195,7 +195,7 @@ class OriannaClient(apiKey: String) : RiotApiClient {
                 participant.summoner.getLeaguePosition(Queue.RANKED_SOLO)
             }
             val items = participant.items.map { item ->
-                ItemResponse(item.id, item.name, item.description)
+                ItemResponse(item.id, item.name ?: "Unknown Item", item.description ?: "")
             }
             val spells = listOf(participant.summonerSpellD.id, participant.summonerSpellF.id)
             val badges = mutableListOf<Badge>()

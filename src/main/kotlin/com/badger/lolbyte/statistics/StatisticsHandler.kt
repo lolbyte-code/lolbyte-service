@@ -14,6 +14,7 @@ data class PlayerStatsResponse(
     val deaths: Double,
     val assists: Double,
     val wards: Double,
+    val games: Int,
 )
 
 data class MostPlayedChampsResponse(
@@ -68,6 +69,7 @@ class StatisticsHandler(private val client: RiotApiClient) {
                 deaths = countDeaths / countGames,
                 assists = countAssists / countGames,
                 wards = countWards / countGames,
+                games = limit ?: defaultLimit,
             )
         } else {
             PlayerStatsResponse(
@@ -76,6 +78,7 @@ class StatisticsHandler(private val client: RiotApiClient) {
                 deaths = 0.0,
                 assists = 0.0,
                 wards = 0.0,
+                games = limit ?: defaultLimit,
             )
         }
 
