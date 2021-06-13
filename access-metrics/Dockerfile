@@ -1,6 +1,6 @@
 FROM alpine:3.12
 
-RUN apk add goaccess curl
+RUN apk add goaccess curl coreutils
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
 RUN chmod +x ./kubectl
 RUN mv ./kubectl /usr/local/bin
@@ -15,6 +15,9 @@ RUN S3CMD_CURRENT_VERSION=`curl -fs https://api.github.com/repos/s3tools/s3cmd/r
     && ls /usr/bin/s3cmd
 
 ADD ./.s3cfg /root/.s3cfg
+ADD ./GeoIP.dat /usr/share/GeoIP/GeoIP.dat
+ADD ./GeoIPv6.dat /usr/share/GeoIP/GeoIPv6.dat
+
 ADD ./generate_dashboards /usr/bin/generate_dashboards
 RUN chmod +x /usr/bin/generate_dashboards
 RUN mkdir ~/.dashboards
