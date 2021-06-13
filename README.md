@@ -39,6 +39,18 @@ Update `kube/lolbyte.yaml` with the above version and run:
 > kubectl apply -f kube/lolbyte.yaml
 ```
 
+## Access Metrics CronJob
+
+The cronjob defined in `kube/access_metrics_cronjob.yaml` utilizes a Docker container which runs [GoAccess](https://goaccess.io/) to upload daily dashboards of metrics from the NGINX ingress controller access logs to Digital Ocean Spaces.
+
+### Update CronJob Docker Image
+
+```bash
+> docker build -t access-metrics:<version> access-metrics/.
+> docker tag access-metrics:<version> registry.digitalocean.com/lolbyte/access-metrics:<version>
+> docker push registry.digitalocean.com/lolbyte/access-metrics:<version>
+```
+
 ### Useful Kubernetes Commands
 
 Restart deployment:
@@ -54,5 +66,4 @@ Restart deployment:
 
 #### TODO
 
-- [ ] Metrics / Monitoring
 - [ ] CI / CD integrated w/ GitHub repo

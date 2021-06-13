@@ -1,0 +1,52 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cj-access-metrics
+  namespace: ingress-nginx
+spec:
+  schedule: "59 11 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: sa-access-metrics
+          containers:
+            - name: container-access-metrics
+              image: registry.digitalocean.com/lolbyte/access-metrics:1.0.0
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -c
+                - generate_dashboards
+          restartPolicy: OnFailure
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: role-access-metrics
+  namespace: ingress-nginx
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-access-metrics
+  namespace: ingress-nginx
+imagePullSecrets:
+  - name: lolbyte
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: rb-access-metrics
+  namespace: ingress-nginx
+subjects:
+  - kind: ServiceAccount
+    name: sa-access-metrics
+roleRef:
+  kind: Role
+  name: role-access-metrics
+  apiGroup: ""
