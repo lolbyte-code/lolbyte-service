@@ -2,7 +2,7 @@
 kubectl -n ingress-nginx logs ingress-nginx-controller-7d7999cdf6-ghm5q > ~/.dashboards/access.log; \
 cat ~/.dashboards/access.log | grep /api/ > ~/.dashboards/access_api.log; \
 goaccess --log-format=COMBINED -f ~/.dashboards/access_api.log -o ~/.dashboards/all.html; \
-cat ~/.dashboards/access.log | grep `date -d yesterday '+%d/%b/%Y'` > ~/.dashboards/access_api_today.log; \
+cat ~/.dashboards/access.log | grep /api/ | grep `date -d yesterday '+%d/%b/%Y'` > ~/.dashboards/access_api_today.log; \
 goaccess --log-format=COMBINED -f ~/.dashboards/access_api_today.log -o ~/.dashboards/`date -d yesterday '+%d-%b-%Y'`.html; \
 s3cmd put -P ~/.dashboards/all.html s3://lolbyte; \
 s3cmd put -P ~/.dashboards/`date -d yesterday '+%d-%b-%Y'`.html s3://lolbyte

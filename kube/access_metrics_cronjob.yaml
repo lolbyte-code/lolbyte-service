@@ -12,7 +12,7 @@ spec:
           serviceAccountName: sa-access-metrics
           containers:
             - name: container-access-metrics
-              image: registry.digitalocean.com/lolbyte/access-metrics:1.0.2
+              image: registry.digitalocean.com/lolbyte/access-metrics:1.0.3
               imagePullPolicy: IfNotPresent
               command:
                 - /bin/sh
