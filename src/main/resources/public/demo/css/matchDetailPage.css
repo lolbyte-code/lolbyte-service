@@ -1,0 +1,179 @@
+/* Match Details Page */
+.matchDetailPage {
+    height: 382px;
+    top: 37px;
+}
+
+.matchDetailPage #matchDetailBar {
+    background-image: url('../img/assets/matchDetailBar.png');
+    height: 22px;
+    background-size: 100%;
+    font-size: 110%;
+    text-align: center;
+    display: inline-flex;
+    width: 696px;
+}
+
+.matchDetailPage #matchResult {
+    color: #22A8CE;
+    width: 78px;
+}
+
+.matchDetailPage #matchDate {
+    color: #5E606E;
+    width: 169px;
+}
+
+.matchDetailPage #matchGameType {
+    color: white;
+    width: 420px;
+}
+
+.matchDetailPage #matchDuration {
+    color: #5E606E;
+    width: 82px;
+}
+
+.matchDetailPage #matchDetailSelection {
+    height: 75px;
+    background-repeat: no-repeat;
+    box-shadow: 355px -10px 30px 8px black inset, -102px 5px 30px 8px black inset;
+}
+
+.matchDetailPage #matchDetailSelection #itemList {
+    display: inline-flex;
+    left: -36px;
+    top: -15px;
+    width: 400px;
+}
+
+.matchDetailPage #matchDetailSelection #item {
+    width: 9%;
+    margin: 1px;
+}
+
+.matchDetailPage #matchDetailSelection #trinket {
+    width: 7.5%;
+    top: 5px;
+}
+
+.matchDetailPage #matchDetailSelection img {
+    width: 100%;
+}
+
+.matchDetailPage #matchDetailSelection #stats1 {
+    display: inline-flex;
+    top: 35px;
+    left: 2px;
+    position: absolute;
+}
+
+.matchDetailPage #matchDetailSelection #stats1 p {
+    margin: 2px;
+}
+
+.matchDetailPage #matchDetailSelection #stats2 {
+    display: inline-flex;
+    position: absolute;
+    left: 2px;
+    top: 53px;
+}
+
+.matchDetailPage #matchDetailSelection #stats2 p {
+    margin: 2px;
+    color: #5E606E;
+}
+
+.matchDetailPage #matchDetailSelection #kdaLong {
+    font-size: 110%;
+    color: white;
+}
+
+.matchDetailPage #matchDetailSelection #damageContribution {
+    font-size: 110%;
+    left: 7px;
+}
+
+.matchDetailPage #matchDetailSelection #level {
+    font-size: 103%;
+    left: 15px;
+    top: 1px;
+}
+
+.matchDetailPage #matchDetailSelection #cs {
+    font-size: 90%;
+}
+
+.matchDetailPage #matchDetailSelection #gold {
+    font-size: 90%;
+}
+
+.matchDetailPage #matchDetailSelection #spellList {
+    width: 30px;
+    float: right;
+    top: 3px;
+    left: -6px;
+}
+
+.matchDetailPage #matchDetailSelection #kp {
+    font-size: 90%;
+}
+
+.matchDetailPage #matchDetailSelection #spell1, .matchDetailPage #matchDetailSelection #spell2 {
+    width: 80%;
+}
+
+.matchDetailPage #matchDetailSelection #playerInfo {
+    line-height: 2px;
+    float: right;
+    text-align: right;
+    left: -9px;
+    top: -1px;
+    -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    -ms-transition: all 1s ease;
+    transition: all 1s ease;
+}
+
+.matchDetailPage #matchDetailSelection #wrapBadgeList {
+    position: absolute;
+    top: 45px;
+    left: 315px;
+    z-index: 2;
+}
+
+.matchDetailPage #matchDetailSelection #badgeList {
+    display: inline-flex;
+}
+
+.matchDetailPage #matchDetailSelection #badge {
+    margin: 1px;
+    width: 62px;
+}
+
+.matchDetailPage #matchDetailSelection #badgeText {
+    font-size: 65%;
+    text-align: center;
+}
+
+.matchDetailPage #matchDetailSelection #playerInfo:hover {
+    -webkit-filter: blur(1px);
+    filter: blur(1px);
+}
+
+.matchDetailPage #matchDetailSelection #playerInfo p {
+    color: white;
+}
+
+.matchDetailPage #matchDetailSelection #playerInfo #summonerName {
+    font-size: 90%;
+}
+
+.matchDetailPage #matchDetailSelection #playerInfo #rank {
+    font-size: 90%;
+}
+
+.matchDetailPage #matchDetailSelection #playerInfo #championName {
+    font-size: 110%;
+}

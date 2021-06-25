@@ -1,0 +1,62 @@
+/* Landing Page */
+.landingPage {
+    top: 17px;
+}
+
+.landingPage #favoriteButton {
+    left: -2px;
+    top: 17px;
+}
+
+.landingPage #label {
+    color: #5E606E;
+    top: 14px;
+    font-size: 139%;
+}
+
+.landingPage .favoriteSummoners {
+    left: 8px;
+    width: 97%;
+}
+
+.landingPage .recentSummoners {
+    left: 8px;
+    width: 97%;
+}
+
+/* Summoner lists */
+#summonerList {
+    top: 10px;
+    height: 200px;
+}
+
+#summonerList img {
+    border-radius: 50%;
+}
+
+#summonerList p {
+    text-align: center;
+    line-height: 17px;
+}
+
+#summonerList #summonerName {
+    color: #22A8CE;
+    top: -15px;
+}
+
+#summonerList #summonerRegion {
+    top: -32px;
+}
+
+#summonerList #summonerOrb:hover {
+    -webkit-filter: blur(1px);
+    filter: blur(1px);
+}
+
+#summonerList #summonerOrb {
+    margin: 10px;
+}
+
+#summonerList #summonerOrb img {
+    width: 115px;
+}

@@ -1,0 +1,126 @@
+/* Defaults */
+* {
+    font-family: 'Calibri';
+    position: relative;
+    color: #B2B4BB;
+    font-size: 100%;
+}
+
+/* CRX Fix */
+body {
+    font-family: 'Calibri';
+    position: relative;
+    color: #B2B4BB;
+    font-size: 100%;
+    overflow: hidden
+}
+
+@font-face {
+    font-family: 'Calibri';
+    src: url('../fonts/Calibri.ttf');
+}
+
+img {
+    width: 100%;
+}
+
+li {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    outline: 0;
+}
+
+::selection {
+    color: #04070E;
+    background: #B2B4BB;
+}
+
+::-moz-selection {
+    color: #04070E;
+    background: #B2B4BB;
+}
+
+/* Entire page */
+.lolbyte {
+    width: 700px;
+    height: 580px;
+    background-image: url('../img/assets/background.png');
+}
+
+/* Summoner page stats */
+.summonerPage {
+    height: 125px;
+    top: 19px;
+}
+
+.statsPage {
+    position: absolute;
+    top: 196px;
+    left: 5px;
+    height: 381px;
+    width: 693px;
+}
+
+/* Buttons */
+#favoriteButton, #alertButton,
+#backButton, #backButton2, #forwardButton, #homeButton, #homeButton2,
+#summonerFavoriteButton, #summonerFavoriteButton2 {
+    width: 35px;
+}
+
+#alertButton:hover,
+#backButton:hover, #backButton2:hover, #forwardButton:hover, #homeButton:hover,
+#homeButton2:hover,  #inGameButton:hover, #summonerFavoriteButton2:hover {
+    -webkit-filter: brightness(1000%);
+    filter: brightness(150%);
+}
+
+/* Labels */
+#playerStatsLabel, #championStatsLabel, #leagueStatsLabel {
+    font-size: 120%;
+    text-align: left;
+    left: 5px;
+    margin: 0px;
+    top: 2px;
+}
+
+/* Qtip */
+.qtip-content, .qtip-title {
+    font-family: 'Calibri';
+    font-size: 13px;
+}
+
+.qtip-title {
+    color: #38B171;
+}
+
+.qtip-content {
+    color: white;
+}
+
+/* Match Loader Animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Loader */
+.loader {
+    border: 16px solid white;
+    border-top: 16px solid #22A8CE;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+    margin: auto;
+    top: 20%;
+    display: none;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

@@ -1,0 +1,149 @@
+/* Owl Carousel */
+.landingPage .owl-wrapper-outer {
+    width: 680px;
+    height: 179px;
+}
+
+.recentGames .owl-wrapper-outer {
+    width: 699px;
+    height: 83px;
+}
+
+.leagueStats .owl-wrapper-outer {
+    width: 374px;
+    height: 360px;
+}
+
+.playerStats .owl-wrapper-outer {
+    height: 108px;
+}
+
+.championStats .owl-wrapper-outer {
+    height: 177px;
+    width: 312px;
+}
+
+#navLeft, #navRight {
+    opacity: 0;
+    -webkit-backface-visibility: visible;
+    -webkit-transition: opacity 500ms ease;
+    -moz-transition: opacity 500ms ease;
+    -ms-transition: opacity 500ms ease;
+    -o-transition: opacity 500ms ease;
+    transition: opacity 500ms ease;
+}
+
+#navLeft:hover, #navRight:hover {
+    opacity: 1;
+}
+
+.owl-buttons {
+    height: 0;
+}
+
+.landingPage .owl-prev, .landingPage .owl-next {
+    width: 40px;
+}
+
+.landingPage .owl-buttons {
+    top: -165px;
+}
+
+.landingPage .owl-prev {
+    top: 20px;
+}
+
+.landingPage .owl-next {
+    top: -26px;
+    left: 645px;
+}
+
+.recentGames .owl-prev, .recentGames .owl-next {
+    width: 30px;
+}
+
+.recentGames .owl-prev {
+    top: -84px;
+}
+
+.recentGames .owl-next {
+    top: -120px;
+    left: 668px;
+}
+
+.leagueStats .owl-prev, .leagueStats .owl-next {
+    width: 75px;
+}
+
+.leagueStats .owl-prev {
+    top: -210px;
+    left: 2px;
+}
+
+.leagueStats .owl-next {
+    top: -291px;
+    left: 300px;
+}
+
+.playerStats .owl-prev, .playerStats .owl-next {
+    width: 40px;
+}
+
+.playerStats .owl-prev {
+    top: -85px;
+}
+
+.playerStats .owl-next {
+    top: -130px;
+    left: 270px;
+}
+
+.championStats .owl-prev, .championStats .owl-next {
+    width: 40px;
+}
+
+.championStats .owl-prev {
+    top: -131px;
+    left: -2px;
+}
+
+.championStats .owl-next {
+    top: -177px;
+    left: 270px;
+}
+
+/* Defaults */
+.owl-theme .owl-controls {
+    text-align: center;
+}
+
+.owl-theme .owl-controls .owl-page {
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+}
+
+.owl-theme .owl-controls .owl-page span {
+    display: block;
+    width: 5px;
+    height: 5px;
+    margin: 5px 2px;
+    filter: Alpha(Opacity=50);
+    opacity: 0.5;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
+    background: #50525D;
+}
+
+.owl-theme .owl-controls .owl-page.active span,
+.owl-theme .owl-controls.clickable .owl-page:hover span {
+    filter: Alpha(Opacity=100);
+    opacity: 1;
+    background: #22A8CE;
+}
+
+.owl-item.loading {
+    min-height: 150px;
+    background: url(AjaxLoader.gif) no-repeat center center
+}

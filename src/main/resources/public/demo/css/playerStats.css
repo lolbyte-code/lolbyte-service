@@ -1,0 +1,49 @@
+/* Player Stats */
+.statsPage .playerStats {
+    height: 152px;
+    width: 45%;
+    background-image: url('../img/assets/playerStats.png');
+}
+
+.playerStats #playerStatsList {
+    height: 105px;
+}
+
+.playerStats #playerStatType {
+    color: white;
+    font-size: 130%;
+    left: 5px;
+    float: left;
+    line-height: 0;
+    top: -11px;
+}
+
+.playerStats #recentGamesStats {
+    position: absolute;
+    top: 24px;
+    line-height: 0;
+    text-align: left;
+    left: 136px;
+}
+
+.playerStats #winPercentage {
+    position: absolute;
+    width: 26%;
+    left: 20px;
+    top: 25px;
+}
+
+.playerStats #kdaLong {
+    color: #22A8CE;
+    font-size: 145%;
+}
+
+.playerStats #kdaShort {
+    color: white;
+    font-size: 120%
+}
+
+.playerStats #averageWardsPlaced {
+    color: #5E606E;
+    font-size: 105%;
+}
