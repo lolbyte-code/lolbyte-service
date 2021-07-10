@@ -13,6 +13,7 @@ import com.badger.lolbyte.recent.RecentGameResponse
 import com.badger.lolbyte.statistics.TopChampResponse
 import com.badger.lolbyte.statistics.TopChampsResponse
 import com.badger.lolbyte.summoner.SummonerResponse
+import com.badger.lolbyte.utils.LolByteUtils
 import com.merakianalytics.orianna.Orianna
 import com.merakianalytics.orianna.types.common.Queue
 import com.merakianalytics.orianna.types.common.Region
@@ -74,7 +75,7 @@ class OriannaClient(apiKey: String) : RiotApiClient {
             val items = participant.items.map { item ->
                 ItemResponse(item.id, item.name ?: "Unknown Item", item.description ?: "")
             }
-            val spells = listOf(participant.summonerSpellD.id, participant.summonerSpellF.id)
+            val spells = listOf(participant.summonerSpellD.id, participant.summonerSpellF.id).map { LolByteUtils.sanitizeSpell(it) }
             RecentGameResponse(
                 id = match.id,
                 timestamp = match.creationTime.millis,
@@ -197,7 +198,7 @@ class OriannaClient(apiKey: String) : RiotApiClient {
             val items = participant.items.map { item ->
                 ItemResponse(item.id, item.name ?: "Unknown Item", item.description ?: "")
             }
-            val spells = listOf(participant.summonerSpellD.id, participant.summonerSpellF.id)
+            val spells = listOf(participant.summonerSpellD.id, participant.summonerSpellF.id).map { LolByteUtils.sanitizeSpell(it) }
             val badges = mutableListOf<Badge>()
             if (participant.team.side == Side.BLUE) {
                 blueTeamGold += participant.stats.goldEarned
