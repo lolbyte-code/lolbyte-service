@@ -8,6 +8,7 @@ object LolByteUtils {
     }
 
     fun sanitizeSpell(id: Int): Int {
+        if (id == 54) return 33 // Ultimates game mode hack
         return if (id in validSpells) id else 0
     }
 }
