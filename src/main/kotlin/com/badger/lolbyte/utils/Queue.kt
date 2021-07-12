@@ -64,7 +64,7 @@ enum class Queue(val tag: String, val id: Int) {
 
     companion object {
         fun getTag(id: Int?): String {
-            return values().firstOrNull { it.id == id }?.tag ?: "Unknown"
+            return values().firstOrNull { it.id == id }?.tag ?: "Ultimate Spellbook" // hack until orianna is updated
         }
     }
 }
