@@ -173,7 +173,7 @@ class OriannaClient(apiKey: String) : RiotApiClient {
                 participant.team.side.id,
             )
         }
-        return CurrentGameResponse(LolByteQueue.getTag(summoner.currentMatch.queue.id), summoners)
+        return CurrentGameResponse(LolByteQueue.getTag(summoner.currentMatch.queue?.id), summoners)
     }
 
     override fun getMatch(id: Long, summonerId: String): MatchResponse {
