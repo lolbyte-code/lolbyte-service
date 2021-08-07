@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.badger"
-version = "2.0.1"
+version = "2.0.2"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
@@ -21,7 +21,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("com.merakianalytics.orianna:orianna:4.0.0-rc8")
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("io.springfox:springfox-boot-starter:3.0.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

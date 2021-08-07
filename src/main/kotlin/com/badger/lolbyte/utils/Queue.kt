@@ -60,11 +60,12 @@ enum class Queue(val tag: String, val id: Int) {
     ODYSSEY_ONSLAUGHT("Odyssey: Onslaught", 1070),
     RANKED_TFT("Ranked TFT", 1100),
     NEXUS_BLITZ_BETA("Nexus Blitz (Beta)", 1200),
-    NEXUS_BLITZ("Nexus Blitz", 1300);
+    NEXUS_BLITZ("Nexus Blitz", 1300),
+    ULTBOOK("Ultimate Spellbook", 1400);
 
     companion object {
         fun getTag(id: Int?): String {
-            return values().firstOrNull { it.id == id }?.tag ?: "Ultimate Spellbook" // hack until orianna is updated
+            return values().firstOrNull { it.id == id }?.tag ?: "Unknown"
         }
     }
 }
