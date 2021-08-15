@@ -135,7 +135,7 @@ class OriannaClient(apiKey: String) : RiotApiClient {
                 queueName = LolByteQueue.getTag(entry.queue.id),
                 queueId = entry.queue.id,
             )
-        }
+        }.sortedByDescending { it.score }
     }
 
     override fun getTopChamps(id: String, limit: Int): TopChampsResponse {
