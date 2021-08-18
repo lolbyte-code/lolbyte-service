@@ -193,12 +193,18 @@ class OriannaClient(apiKey: String) : RiotApiClient {
             val entry = try {
                 participant.summoner.getLeaguePosition(match.queue)
             } catch (e: IllegalArgumentException) {
-                participant.summoner.getLeaguePosition(Queue.RANKED_SOLO)
+                try {
+                    participant.summoner.getLeaguePosition(Queue.RANKED_SOLO)
+                } catch (e: com.merakianalytics.orianna.datapipeline.riotapi.exceptions.BadRequestException) {
+                    // participant is a bot
+                    null
+                }
             }
             val items = participant.items.map { item ->
                 ItemResponse(item.id, item.name ?: "Unknown Item", item.description ?: "")
             }
-            val spells = listOf(participant.summonerSpellD.id, participant.summonerSpellF.id).map { LolByteUtils.sanitizeSpell(it) }
+            // summoner spell is null for bots
+            val spells = listOf(participant?.summonerSpellD?.id ?: 0, participant?.summonerSpellF?.id ?: 0).map { LolByteUtils.sanitizeSpell(it) }
             val badges = mutableListOf<Badge>()
             if (participant.team.side == Side.BLUE) {
                 blueTeamGold += participant.stats.goldEarned
