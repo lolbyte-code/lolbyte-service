@@ -23,7 +23,6 @@ import com.merakianalytics.orianna.types.core.match.Match
 import com.merakianalytics.orianna.types.core.match.MatchHistory
 import com.merakianalytics.orianna.types.core.staticdata.Champion
 import com.merakianalytics.orianna.types.core.summoner.Summoner
-import kotlin.math.max
 import com.badger.lolbyte.current.SummonerResponse as CurrentGameSummonerResponse
 import com.badger.lolbyte.utils.Queue as LolByteQueue
 import com.badger.lolbyte.utils.Region as LolByteRegion
@@ -284,16 +283,16 @@ class OriannaClient(apiKey: String) : RiotApiClient {
         var maxDamage: PlayerResponse? = null
         var maxGold: PlayerResponse? = null
         players.forEach { player ->
-            if (maxKda == null || computeKda(player) > computeKda(maxKda)) maxKda = player
+            if (maxKda == null || LolByteUtils.computeKda(player) > LolByteUtils.computeKda(maxKda)) maxKda = player
             if (player.wards > maxWards?.wards ?: 0) maxWards = player
             if (player.damage > maxDamage?.damage ?: 0) maxDamage = player
             if (player.gold > maxGold?.gold ?: 0) maxGold = player
             if (player.teamId == Side.BLUE.id) {
-                player.damageContribution = divideInts(player.damage, blueTeamDamage)
-                player.killParticipation = divideInts(player.kills + player.assists, blueTeamKills)
+                player.damageContribution = LolByteUtils.divideInts(player.damage, blueTeamDamage)
+                player.killParticipation = LolByteUtils.divideInts(player.kills + player.assists, blueTeamKills)
             } else {
-                player.damageContribution = divideInts(player.damage, redTeamDamage)
-                player.killParticipation = divideInts(player.kills + player.assists, redTeamKills)
+                player.damageContribution = LolByteUtils.divideInts(player.damage, redTeamDamage)
+                player.killParticipation = LolByteUtils.divideInts(player.kills + player.assists, redTeamKills)
             }
         }
 
@@ -311,14 +310,5 @@ class OriannaClient(apiKey: String) : RiotApiClient {
             redTeam = redTeam,
             players = players.sortedBy { it.order },
         )
-    }
-
-    private fun computeKda(player: PlayerResponse?): Double {
-        if (player == null) return 0.0
-        return player.kills.toDouble() + player.assists.toDouble() / max(player.deaths.toDouble(), 1.0)
-    }
-
-    private fun divideInts(numerator: Int, denominator: Int): Int {
-        return (numerator.toDouble() / denominator.toDouble() * 100).toInt()
     }
 }

@@ -9,11 +9,12 @@ plugins {
 }
 
 group = "com.badger"
-version = "2.0.5"
+version = "2.1.0"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
+    maven(url = "https://jitpack.io")
 }
 
 dependencies {
@@ -23,6 +24,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("io.springfox:springfox-boot-starter:3.0.0")
+    implementation("com.github.stelar7:R4J:2.0.3")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

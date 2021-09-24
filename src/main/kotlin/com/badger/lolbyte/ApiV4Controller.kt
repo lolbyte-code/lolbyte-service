@@ -1,6 +1,6 @@
 package com.badger.lolbyte
 
-import com.badger.lolbyte.client.OriannaClient
+import com.badger.lolbyte.client.HybridClient
 import com.badger.lolbyte.config.NotificationProperties
 import com.badger.lolbyte.config.RiotProperties
 import com.badger.lolbyte.current.CurrentGameHandler
@@ -38,7 +38,7 @@ class ApiV4Controller(
     riotProperties: RiotProperties,
     private val notificationProperties: NotificationProperties,
 ) {
-    private val client = OriannaClient(riotProperties.apiKey)
+    private val client = HybridClient(riotProperties.apiKey)
 
     @GetMapping("/notifications")
     fun getNotification(): NotificationResponse {
