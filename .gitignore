@@ -5,4 +5,3 @@ application.yml
 .DS_Store
 access-metrics/.s3cfg
 GeoIP*
-libs/
