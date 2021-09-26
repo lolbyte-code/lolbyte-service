@@ -14,7 +14,7 @@ The Kubernetes deployment is defined under `kube/`. The primary components are a
 
 ## Dependencies
 
-LolByte's primary dependency is [Orianna](https://github.com/meraki-analytics/orianna) which is used to interact with the Riot API. LolByte is mostly just an adapter layer which transforms data from the Riot API into a form that the LolByte clients can interact with.
+LolByte's primary dependency is [Orianna](https://github.com/meraki-analytics/orianna) which is used to interact with the Riot API (side note: the library maintainer is MIA recently so [R4J](https://github.com/stelar7/R4J) is also  being used to fill the gaps). LolByte is mostly just an adapter layer which transforms data from the Riot API into a form that the LolByte clients can interact with.
 
 ## Build
 
