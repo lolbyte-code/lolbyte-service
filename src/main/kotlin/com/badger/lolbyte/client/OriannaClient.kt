@@ -90,7 +90,7 @@ class OriannaClient(apiKey: String) : RiotApiClient {
                 duration = match.duration.standardMinutes,
                 items = if (items.isNotEmpty()) items.subList(0, items.size - 1) else listOf(),
                 spells = spells,
-                keystone = participant.runeStats.first().rune.id,
+                keystone = LolByteUtils.sanitizeKeystone(participant.runeStats.first().rune.id),
             )
         }
     }
@@ -247,7 +247,7 @@ class OriannaClient(apiKey: String) : RiotApiClient {
                 items = if (items.isNotEmpty()) items.subList(0, items.size - 1) else listOf(),
                 trinket = items.lastOrNull()?.id ?: 0,
                 spells = spells,
-                keystone = participant.runeStats.first().rune.id,
+                keystone = LolByteUtils.sanitizeKeystone(participant.runeStats.first().rune.id),
                 badges = badges,
             )
         }
