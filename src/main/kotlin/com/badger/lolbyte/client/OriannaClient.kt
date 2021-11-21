@@ -118,7 +118,7 @@ class OriannaClient(apiKey: String) : RiotApiClient {
                 )
             )
         }
-        return leaguePositions.map { entry ->
+        return leaguePositions.filter { entry -> entry?.queue != null }.map { entry ->
             val series = if (entry.promos != null) {
                 "${entry.promos.wins}W-${entry.promos.losses}L"
             } else {
