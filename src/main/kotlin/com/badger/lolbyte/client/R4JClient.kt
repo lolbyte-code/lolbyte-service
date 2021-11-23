@@ -67,7 +67,7 @@ class R4JClient(apiKey: String) : RiotApiClient {
 
             val participant = match.participants.first { it.puuid == puuid }
             val items = getItems(participant)
-            val spells = listOf(participant.summoner1Id, participant.summoner2Id).map { LolByteUtils.sanitizeSpell(it) }
+            val spells = listOf(participant.summoner1Id, participant.summoner2Id)
             RecentGameResponse(
                 id = match.gameId,
                 timestamp = match.gameStartTimestamp,
@@ -144,7 +144,7 @@ class R4JClient(apiKey: String) : RiotApiClient {
             }
             val items = getItems(participant)
             // summoner spell is null for bots
-            val spells = listOf(participant?.summoner1Id ?: 0, participant?.summoner2Id ?: 0).map { LolByteUtils.sanitizeSpell(it) }
+            val spells = listOf(participant?.summoner1Id ?: 0, participant?.summoner2Id ?: 0)
             val badges = mutableListOf<Badge>()
             if (participant.team == TeamType.BLUE) {
                 blueTeamGold += participant.goldEarned

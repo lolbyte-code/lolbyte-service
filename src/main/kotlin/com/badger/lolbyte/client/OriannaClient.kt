@@ -74,7 +74,7 @@ class OriannaClient(apiKey: String) : RiotApiClient {
             val items = participant.items.map { item ->
                 ItemResponse(item.id, item.name ?: "Unknown Item", item.description ?: "")
             }
-            val spells = listOf(participant.summonerSpellD.id, participant.summonerSpellF.id).map { LolByteUtils.sanitizeSpell(it) }
+            val spells = listOf(participant.summonerSpellD.id, participant.summonerSpellF.id)
             RecentGameResponse(
                 id = match.id,
                 timestamp = match.creationTime.millis,
@@ -203,7 +203,7 @@ class OriannaClient(apiKey: String) : RiotApiClient {
                 ItemResponse(item.id, item.name ?: "Unknown Item", item.description ?: "")
             }
             // summoner spell is null for bots
-            val spells = listOf(participant?.summonerSpellD?.id ?: 0, participant?.summonerSpellF?.id ?: 0).map { LolByteUtils.sanitizeSpell(it) }
+            val spells = listOf(participant?.summonerSpellD?.id ?: 0, participant?.summonerSpellF?.id ?: 0)
             val badges = mutableListOf<Badge>()
             if (participant.team.side == Side.BLUE) {
                 blueTeamGold += participant.stats.goldEarned
