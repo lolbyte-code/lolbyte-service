@@ -55,10 +55,11 @@ class R4JClient(apiKey: String) : RiotApiClient {
     override fun getRecentGames(id: String, limit: Int, queueId: Int?): List<RecentGameResponse> {
         val summoner = Summoner.byAccountId(leagueShard, id)
         val puuid = summoner.puuid
-        val matchListBuilder = summoner.leagueGames.withCount(limit)
-        if (queueId != null && queueId != 0) {
+        val matchListBuilder = if (queueId != null && queueId != 0) {
             val queue = getQueue(queueId) ?: throw BadRequestException("Invalid queueId $queueId")
-            matchListBuilder.withQueue(queue)
+            summoner.leagueGames.withCount(limit).withQueue(queue)
+        } else {
+            summoner.leagueGames.withCount(limit)
         }
         val matchList = matchListBuilder.get()
         return matchList.map { matchId ->
