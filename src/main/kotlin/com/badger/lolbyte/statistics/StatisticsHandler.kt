@@ -82,6 +82,16 @@ class StatisticsHandler(private val client: RiotApiClient) {
             )
         }
 
+        // Some weird issue where champ ids can be invalid in recent games.
+        champs.removeIf {
+            try {
+                client.getChampName(it)
+                false
+            } catch (e: Exception) {
+                true
+            }
+        }
+
         val mostPlayedChamps = MostPlayedChampsResponse(
             champs.groupBy { it }.values.sortedByDescending { it.size }.take(3).map { topChamp ->
                 val name = client.getChampName(topChamp.first())
