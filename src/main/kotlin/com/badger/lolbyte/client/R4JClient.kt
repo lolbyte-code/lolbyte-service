@@ -16,6 +16,7 @@ import com.badger.lolbyte.utils.Region
 import com.merakianalytics.orianna.types.common.Side
 import no.stelar7.api.r4j.basic.APICredentials
 import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard
+import no.stelar7.api.r4j.basic.constants.types.lol.GameModeType
 import no.stelar7.api.r4j.basic.constants.types.lol.GameQueueType
 import no.stelar7.api.r4j.basic.constants.types.lol.TeamType
 import no.stelar7.api.r4j.impl.R4J
@@ -85,8 +86,9 @@ class R4JClient(apiKey: String) : RiotApiClient {
                 items = if (items.isNotEmpty()) items.subList(0, items.size - 1) else listOf(),
                 spells = spells,
                 keystone = participant.perks.perkStyles.first().selections.first().perk,
+                gameMode = match.gameMode.value,
             )
-        }
+        }.filter { it.gameMode != GameModeType.PRACTICETOOL.value }
     }
 
     private fun getQueue(queueId: Int): GameQueueType? {

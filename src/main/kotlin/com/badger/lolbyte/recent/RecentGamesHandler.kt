@@ -23,7 +23,8 @@ data class RecentGameResponse(
     val duration: Long,
     val items: List<ItemResponse>,
     val spells: List<Int>,
-    val keystone: Int
+    val keystone: Int,
+    val gameMode: String = "",
 )
 
 class RecentGamesHandler(private val client: RiotApiClient) {
