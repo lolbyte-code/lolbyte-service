@@ -45,6 +45,7 @@ class StatisticsHandler(private val client: RiotApiClient) {
 
     fun getStatistics(id: String, limit: Int?, queueId: Int?): StatisticsResponse {
         val recentGames = client.getRecentGames(id, limit ?: defaultLimit, queueId)
+        val actualLimit = limit ?: kotlin.math.min(recentGames.size, defaultLimit)
         var countWins = 0
         var countKills = 0
         var countDeaths = 0
@@ -64,12 +65,17 @@ class StatisticsHandler(private val client: RiotApiClient) {
 
         val playerStats = if (countGames > 0) {
             PlayerStatsResponse(
-                winPercentage = (countWins / countGames * 100).toInt(),
-                kills = countKills / countGames,
-                deaths = countDeaths / countGames,
-                assists = countAssists / countGames,
-                wards = countWards / countGames,
-                games = limit ?: defaultLimit,
+                // TODO: winPercentage won't be accurate if games < 20
+                // But we have to do it this way since the win percentages are hard-coded client side.
+                // Also when you divide by numbers != 20, you get a lot of decimals so we have to round here.
+                // Might be able to revert this code if R4J / Riot fix invalid match issues causing the count to be
+                // messed up here.
+                winPercentage = (countWins / defaultLimit.toDouble() * 100).toInt(),
+                kills = (countKills / countGames).round(2),
+                deaths = (countDeaths / countGames).round(2),
+                assists = (countAssists / countGames).round(2),
+                wards = (countWards / countGames).round(2),
+                games = actualLimit,
             )
         } else {
             PlayerStatsResponse(
@@ -78,7 +84,7 @@ class StatisticsHandler(private val client: RiotApiClient) {
                 deaths = 0.0,
                 assists = 0.0,
                 wards = 0.0,
-                games = limit ?: defaultLimit,
+                games = actualLimit,
             )
         }
 
@@ -110,5 +116,11 @@ class StatisticsHandler(private val client: RiotApiClient) {
             mostPlayedChamps = mostPlayedChamps,
             topChamps = topChamps
         )
+    }
+
+    private fun Double.round(decimals: Int): Double {
+        var multiplier = 1.0
+        repeat(decimals) { multiplier *= 10 }
+        return kotlin.math.round(this * multiplier) / multiplier
     }
 }

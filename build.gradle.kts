@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.badger"
-version = "2.1.16"
+version = "2.1.17"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {

@@ -63,10 +63,11 @@ class R4JClient(apiKey: String) : RiotApiClient {
             summoner.leagueGames.withCount(limit)
         }
         val matchList = matchListBuilder.get()
-        return matchList.map { matchId ->
+        // Matches with valid match ids can be null (Riot API bug).
+        return matchList.mapNotNull { matchId ->
             val matchBuilder = MatchBuilder(leagueShard)
-            val match = matchBuilder.withId(matchId).match
-
+            matchBuilder.withId(matchId).match
+        }.map { match ->
             val participant = match.participants.first { it.puuid == puuid }
             val items = getItems(participant)
             val spells = listOf(participant.summoner1Id, participant.summoner2Id)
