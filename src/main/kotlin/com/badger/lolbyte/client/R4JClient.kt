@@ -67,6 +67,8 @@ class R4JClient(apiKey: String) : RiotApiClient {
         return matchList.mapNotNull { matchId ->
             val matchBuilder = MatchBuilder(leagueShard)
             matchBuilder.withId(matchId).match
+        }.filter {
+            it.gameCreation != 0L
         }.map { match ->
             val participant = match.participants.first { it.puuid == puuid }
             val items = getItems(participant)
