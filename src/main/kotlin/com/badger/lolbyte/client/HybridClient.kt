@@ -4,6 +4,7 @@ import com.badger.lolbyte.current.CurrentGameResponse
 import com.badger.lolbyte.match.MatchResponse
 import com.badger.lolbyte.rank.RankResponse
 import com.badger.lolbyte.recent.RecentGameResponse
+import com.badger.lolbyte.statistics.TopChampResponse
 import com.badger.lolbyte.statistics.TopChampsResponse
 import com.badger.lolbyte.summoner.SummonerResponse
 import com.badger.lolbyte.utils.Region
@@ -30,7 +31,17 @@ class HybridClient(apiKey: String) : RiotApiClient {
     }
 
     override fun getTopChamps(id: String, limit: Int): TopChampsResponse {
-        return oriannaClient.getTopChamps(id, limit)
+        val topChampsResponse = r4JClient.getTopChamps(id, limit)
+        return TopChampsResponse(
+            topChampsResponse.champs.map { topChampResponse ->
+                TopChampResponse(
+                    topChampResponse.id,
+                    getChampName(topChampResponse.id),
+                    topChampResponse.level,
+                    topChampResponse.points,
+                )
+            }
+        )
     }
 
     override fun getChampName(id: Int): String {

@@ -9,6 +9,7 @@ import com.badger.lolbyte.match.PlayerResponse
 import com.badger.lolbyte.match.TeamResponse
 import com.badger.lolbyte.rank.RankResponse
 import com.badger.lolbyte.recent.RecentGameResponse
+import com.badger.lolbyte.statistics.TopChampResponse
 import com.badger.lolbyte.statistics.TopChampsResponse
 import com.badger.lolbyte.summoner.SummonerResponse
 import com.badger.lolbyte.utils.LolByteUtils
@@ -122,7 +123,16 @@ class R4JClient(apiKey: String) : RiotApiClient {
     }
 
     override fun getTopChamps(id: String, limit: Int): TopChampsResponse {
-        throw UnsupportedOperationException("getTopChamps not implemented for R4J!")
+        val summoner = Summoner.byAccountId(leagueShard, id)
+        val topChamps = summoner.championMasteries.take(limit).map { championMastery ->
+            TopChampResponse(
+                championMastery.championId,
+                "",
+                championMastery.championLevel,
+                championMastery.championPoints,
+            )
+        }
+        return TopChampsResponse(topChamps)
     }
 
     override fun getChampName(id: Int): String {
