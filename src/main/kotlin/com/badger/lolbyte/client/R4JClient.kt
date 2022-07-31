@@ -93,7 +93,8 @@ class R4JClient(apiKey: String) : RiotApiClient {
                 duration = match.gameDurationAsDuration.toMinutes(),
                 items = if (items.isNotEmpty()) items.subList(0, items.size - 1) else listOf(),
                 spells = spells,
-                keystone = participant.perks.perkStyles.first().selections.first().perk,
+                // Perks are intermittently null.
+                keystone = participant.perks.perkStyles.firstOrNull()?.selections?.firstOrNull()?.perk ?: 0,
                 gameMode = match.gameMode.value,
             )
         }.filter { it.gameMode != GameModeType.PRACTICETOOL.value }
@@ -208,7 +209,8 @@ class R4JClient(apiKey: String) : RiotApiClient {
                 items = if (items.isNotEmpty()) items.subList(0, items.size - 1) else listOf(),
                 trinket = items.lastOrNull()?.id ?: 0,
                 spells = spells,
-                keystone = participant.perks.perkStyles.first().selections.first().perk,
+                // Perks are intermittently null.
+                keystone = participant.perks.perkStyles.firstOrNull()?.selections?.firstOrNull()?.perk ?: 0,
                 badges = badges,
             )
         }
