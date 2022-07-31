@@ -21,7 +21,7 @@ class SpringFoxConfig {
     }
 }
 
-private fun apiInfo(): ApiInfo? {
+private fun apiInfo(): ApiInfo {
     return ApiInfo(
         "LolByte Service API",
         "",

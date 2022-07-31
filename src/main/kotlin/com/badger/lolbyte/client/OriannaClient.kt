@@ -32,7 +32,7 @@ class OriannaClient(apiKey: String) : RiotApiClient {
         Orianna.setRiotAPIKey(apiKey)
     }
 
-    override fun setRegion(region: com.badger.lolbyte.utils.Region) {
+    override fun setRegion(region: LolByteRegion) {
         val oriannaRegion = when (region) {
             LolByteRegion.NORTH_AMERICA -> Region.NORTH_AMERICA
             LolByteRegion.BRAZIL -> Region.BRAZIL
@@ -284,9 +284,9 @@ class OriannaClient(apiKey: String) : RiotApiClient {
         var maxGold: PlayerResponse? = null
         players.forEach { player ->
             if (maxKda == null || LolByteUtils.computeKda(player) > LolByteUtils.computeKda(maxKda)) maxKda = player
-            if (player.wards > maxWards?.wards ?: 0) maxWards = player
-            if (player.damage > maxDamage?.damage ?: 0) maxDamage = player
-            if (player.gold > maxGold?.gold ?: 0) maxGold = player
+            if (player.wards > (maxWards?.wards ?: 0)) maxWards = player
+            if (player.damage > (maxDamage?.damage ?: 0)) maxDamage = player
+            if (player.gold > (maxGold?.gold ?: 0)) maxGold = player
             if (player.teamId == Side.BLUE.id) {
                 player.damageContribution = LolByteUtils.divideInts(player.damage, blueTeamDamage)
                 player.killParticipation = LolByteUtils.divideInts(player.kills + player.assists, blueTeamKills)
