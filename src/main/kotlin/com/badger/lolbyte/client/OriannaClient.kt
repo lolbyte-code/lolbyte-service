@@ -57,7 +57,7 @@ class OriannaClient(apiKey: String) : RiotApiClient {
             summoner.region.tag.toLowerCase(),
             summoner.name,
             summoner.level,
-            summoner.profileIcon.id
+            summoner.profileIcon?.id ?: 0,
         )
     }
 
