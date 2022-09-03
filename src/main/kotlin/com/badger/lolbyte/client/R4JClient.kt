@@ -28,6 +28,7 @@ import no.stelar7.api.r4j.impl.lol.raw.DDragonAPI
 import no.stelar7.api.r4j.pojo.lol.match.v5.MatchParticipant
 import no.stelar7.api.r4j.pojo.lol.summoner.Summoner
 import java.util.concurrent.TimeUnit
+import java.util.stream.Collectors
 
 class R4JClient(apiKey: String) : RiotApiClient {
     private var leagueShard = LeagueShard.NA1
@@ -67,9 +68,9 @@ class R4JClient(apiKey: String) : RiotApiClient {
         } else {
             summoner.leagueGames.withCount(limit)
         }
-        val matchList = matchListBuilder.get()
         // Matches with valid match ids can be null (Riot API bug).
-        return matchList.mapNotNull { matchId ->
+        val matchList = matchListBuilder.get().filterNotNull()
+        return matchList.parallelStream().map { matchId ->
             val matchBuilder = MatchBuilder(leagueShard)
             matchBuilder.withId(matchId).match
         }.filter {
@@ -97,7 +98,7 @@ class R4JClient(apiKey: String) : RiotApiClient {
                 keystone = participant.perks.perkStyles.firstOrNull()?.selections?.firstOrNull()?.perk ?: 0,
                 gameMode = match.gameMode.value,
             )
-        }.filter { it.gameMode != GameModeType.PRACTICETOOL.value }
+        }.filter { it.gameMode != GameModeType.PRACTICETOOL.value }.collect(Collectors.toList())
     }
 
     private fun getQueue(queueId: Int): GameQueueType? {
