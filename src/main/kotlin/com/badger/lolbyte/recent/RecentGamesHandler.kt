@@ -29,7 +29,7 @@ data class RecentGameResponse(
 
 class RecentGamesHandler(private val client: RiotApiClient) {
     companion object {
-        private const val defaultLimit = 20
+        private const val defaultLimit = 10
     }
 
     fun getRecentGames(id: String, limit: Int?, queueId: Int?): RecentGamesResponse {

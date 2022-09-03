@@ -40,7 +40,7 @@ data class TopChampResponse(
 
 class StatisticsHandler(private val client: RiotApiClient) {
     companion object {
-        private const val defaultLimit = 20
+        private const val defaultLimit = 10
     }
 
     fun getStatistics(id: String, limit: Int?, queueId: Int?): StatisticsResponse {
