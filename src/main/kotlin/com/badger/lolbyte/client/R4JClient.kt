@@ -16,7 +16,7 @@ import com.badger.lolbyte.utils.LolByteUtils
 import com.badger.lolbyte.utils.Region
 import com.merakianalytics.orianna.types.common.Side
 import no.stelar7.api.r4j.basic.APICredentials
-import no.stelar7.api.r4j.basic.cache.impl.FileSystemCacheProvider
+import no.stelar7.api.r4j.basic.cache.impl.EmptyCacheProvider
 import no.stelar7.api.r4j.basic.calling.DataCall
 import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard
 import no.stelar7.api.r4j.basic.constants.types.lol.GameModeType
@@ -27,7 +27,6 @@ import no.stelar7.api.r4j.impl.lol.builders.matchv5.match.MatchBuilder
 import no.stelar7.api.r4j.impl.lol.raw.DDragonAPI
 import no.stelar7.api.r4j.pojo.lol.match.v5.MatchParticipant
 import no.stelar7.api.r4j.pojo.lol.summoner.Summoner
-import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 
 class R4JClient(apiKey: String) : RiotApiClient {
@@ -35,7 +34,7 @@ class R4JClient(apiKey: String) : RiotApiClient {
 
     init {
         R4J(APICredentials(apiKey))
-        DataCall.setCacheProvider(FileSystemCacheProvider(TimeUnit.DAYS.toMillis(1).toInt()))
+        DataCall.setCacheProvider(EmptyCacheProvider.INSTANCE)
     }
 
     override fun setRegion(region: Region) {
