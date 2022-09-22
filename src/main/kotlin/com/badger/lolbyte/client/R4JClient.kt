@@ -16,7 +16,7 @@ import com.badger.lolbyte.utils.LolByteUtils
 import com.badger.lolbyte.utils.Region
 import com.merakianalytics.orianna.types.common.Side
 import no.stelar7.api.r4j.basic.APICredentials
-import no.stelar7.api.r4j.basic.cache.impl.EmptyCacheProvider
+import no.stelar7.api.r4j.basic.cache.impl.FileSystemCacheProvider
 import no.stelar7.api.r4j.basic.calling.DataCall
 import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard
 import no.stelar7.api.r4j.basic.constants.types.lol.GameModeType
@@ -34,7 +34,7 @@ class R4JClient(apiKey: String) : RiotApiClient {
 
     init {
         R4J(APICredentials(apiKey))
-        DataCall.setCacheProvider(EmptyCacheProvider.INSTANCE)
+        DataCall.setCacheProvider(FileSystemCacheProvider())
     }
 
     override fun setRegion(region: Region) {
