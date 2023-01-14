@@ -17,4 +17,5 @@ interface RiotApiClient {
     fun getChampName(id: Int): String
     fun getCurrentGame(id: String): CurrentGameResponse
     fun getMatch(id: Long, summonerId: String): MatchResponse
+    fun getTFTRanks(id: String): List<RankResponse>
 }

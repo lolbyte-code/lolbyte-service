@@ -27,7 +27,13 @@ class HybridClient(apiKey: String) : RiotApiClient {
     }
 
     override fun getRanks(id: String): List<RankResponse> {
-        return oriannaClient.getRanks(id)
+        val leagueRanks = oriannaClient.getRanks(id)
+        val tftRanks = getTFTRanks(id)
+        return if (leagueRanks.first().tier == "unranked" && tftRanks.isNotEmpty()) {
+            tftRanks
+        } else {
+            (leagueRanks + tftRanks).sortedByDescending { it.score }
+        }
     }
 
     override fun getTopChamps(id: String, limit: Int): TopChampsResponse {
@@ -54,5 +60,9 @@ class HybridClient(apiKey: String) : RiotApiClient {
 
     override fun getMatch(id: Long, summonerId: String): MatchResponse {
         return r4JClient.getMatch(id, summonerId)
+    }
+
+    override fun getTFTRanks(id: String): List<RankResponse> {
+        return r4JClient.getTFTRanks(id)
     }
 }

@@ -134,7 +134,7 @@ class OriannaClient(apiKey: String) : RiotApiClient {
                 queueName = LolByteQueue.getTag(entry.queue.id),
                 queueId = entry.queue.id,
             )
-        }.sortedByDescending { it.score }
+        }
     }
 
     override fun getTopChamps(id: String, limit: Int): TopChampsResponse {
@@ -310,5 +310,9 @@ class OriannaClient(apiKey: String) : RiotApiClient {
             redTeam = redTeam,
             players = players.sortedBy { it.order },
         )
+    }
+
+    override fun getTFTRanks(id: String): List<RankResponse> {
+        throw UnsupportedOperationException("getTFTRanks not implemented for Orianna!")
     }
 }

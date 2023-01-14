@@ -13,6 +13,7 @@ import com.badger.lolbyte.statistics.TopChampResponse
 import com.badger.lolbyte.statistics.TopChampsResponse
 import com.badger.lolbyte.summoner.SummonerResponse
 import com.badger.lolbyte.utils.LolByteUtils
+import com.badger.lolbyte.utils.Queue
 import com.badger.lolbyte.utils.Region
 import com.merakianalytics.orianna.types.common.Side
 import no.stelar7.api.r4j.basic.APICredentials
@@ -22,9 +23,11 @@ import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard
 import no.stelar7.api.r4j.basic.constants.types.lol.GameModeType
 import no.stelar7.api.r4j.basic.constants.types.lol.GameQueueType
 import no.stelar7.api.r4j.basic.constants.types.lol.TeamType
+import no.stelar7.api.r4j.basic.exceptions.APIResponseException
 import no.stelar7.api.r4j.impl.R4J
 import no.stelar7.api.r4j.impl.lol.builders.matchv5.match.MatchBuilder
 import no.stelar7.api.r4j.impl.lol.raw.DDragonAPI
+import no.stelar7.api.r4j.impl.tft.TFTLeagueAPI
 import no.stelar7.api.r4j.pojo.lol.match.v5.MatchParticipant
 import no.stelar7.api.r4j.pojo.lol.summoner.Summoner
 import java.util.stream.Collectors
@@ -89,7 +92,7 @@ class R4JClient(apiKey: String) : RiotApiClient {
                 assists = participant.assists,
                 wards = participant.wardsPlaced,
                 cs = participant.totalMinionsKilled + participant.neutralMinionsKilled,
-                queueName = com.badger.lolbyte.utils.Queue.getTag(match.queue.values.firstOrNull()),
+                queueName = Queue.getTag(match.queue.values.firstOrNull()),
                 duration = match.gameDurationAsDuration.toMinutes(),
                 items = if (items.isNotEmpty()) items.subList(0, items.size - 1) else listOf(),
                 spells = spells,
@@ -268,12 +271,33 @@ class R4JClient(apiKey: String) : RiotApiClient {
 
         return MatchResponse(
             id = match.gameId,
-            queueName = com.badger.lolbyte.utils.Queue.getTag(match.queue.values.firstOrNull()),
+            queueName = Queue.getTag(match.queue.values.firstOrNull()),
             duration = match.gameDurationAsDuration.toMinutes(),
             timestamp = match.gameStartTimestamp,
             blueTeam = blueTeam,
             redTeam = redTeam,
             players = players.sortedBy { it.order },
         )
+    }
+
+    override fun getTFTRanks(id: String): List<RankResponse> {
+        val summoner = Summoner.byAccountId(leagueShard, id)
+        try {
+            val leagueEntries = TFTLeagueAPI.getInstance().getLeagueEntries(leagueShard, summoner.summonerId)
+            return leagueEntries.filter { it.queueType == GameQueueType.TEAMFIGHT_TACTICS_RANKED }.map { entry ->
+                RankResponse(
+                    tier = entry.tier.toLowerCase(),
+                    division = entry.rank,
+                    points = entry.leaguePoints,
+                    series = "",
+                    wins = entry.wins,
+                    leagueName = "",
+                    queueName = Queue.RANKED_TFT.tag,
+                    queueId = Queue.RANKED_TFT.id,
+                )
+            }
+        } catch (e: APIResponseException) {
+            return emptyList()
+        }
     }
 }
