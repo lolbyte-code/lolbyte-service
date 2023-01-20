@@ -7,6 +7,7 @@ import com.badger.lolbyte.utils.Region
 import com.google.gson.Gson
 import no.stelar7.api.r4j.pojo.lol.summoner.Summoner
 import no.stelar7.api.r4j.pojo.tft.league.TFTLeagueEntry
+import java.lang.Exception
 import java.net.URI
 import java.net.URLEncoder
 import java.net.http.HttpClient
@@ -42,6 +43,16 @@ class RawTFTClient(apiKey: String) : TFTApiClient {
     }
 
     override fun getTFTRanks(name: String): List<RankResponse> {
+        // Yes this is hacky. No I don't care. This whole client should be
+        // removed once R4J handles credentials state non-globally.
+        return try {
+            getTFTRanksHelper(name)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun getTFTRanksHelper(name: String): List<RankResponse> {
         val summonerId = getSummoner(name).id
         val url = String.format(tftRanksUrl, this.region.platform, summonerId)
         val client = HttpClient.newBuilder().build()
