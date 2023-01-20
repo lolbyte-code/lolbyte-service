@@ -1,6 +1,6 @@
 package com.badger.lolbyte.match
 
-import com.badger.lolbyte.client.RiotApiClient
+import com.badger.lolbyte.client.LeagueApiClient
 import com.badger.lolbyte.utils.LaneRole
 import com.badger.lolbyte.utils.LolByteUtils
 
@@ -127,7 +127,7 @@ data class TeamResponse(
     val bans: List<Int>,
 )
 
-class MatchHandler(private val client: RiotApiClient) {
+class MatchHandler(private val client: LeagueApiClient) {
     fun getMatch(id: Long, summonerId: String): MatchResponse {
         return client.getMatch(id, summonerId)
     }

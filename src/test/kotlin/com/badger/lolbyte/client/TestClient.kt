@@ -17,10 +17,14 @@ class TestClient(
     private val champMapping: Map<Int, String>? = null,
     private val currentGameResponse: CurrentGameResponse? = null,
     private val matchResponse: MatchResponse? = null,
-) : RiotApiClient {
+) : LeagueApiClient {
     override fun setRegion(region: Region) {}
 
     override fun getSummoner(name: String): SummonerResponse {
+        return summonerResponse ?: Assertions.fail("No summonerResponse provided")
+    }
+
+    override fun getSummonerById(id: String): SummonerResponse {
         return summonerResponse ?: Assertions.fail("No summonerResponse provided")
     }
 

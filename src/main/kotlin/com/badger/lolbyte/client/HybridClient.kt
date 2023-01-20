@@ -9,9 +9,10 @@ import com.badger.lolbyte.statistics.TopChampsResponse
 import com.badger.lolbyte.summoner.SummonerResponse
 import com.badger.lolbyte.utils.Region
 
-class HybridClient(apiKey: String) : RiotApiClient {
-    private val oriannaClient = OriannaClient(apiKey)
-    private val r4JClient = R4JClient(apiKey)
+class HybridClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTApiClient {
+    private val oriannaClient = OriannaClient(leagueApiKey)
+    private val r4JClient = R4JClient(leagueApiKey)
+    private val rawTFTClient = RawTFTClient(tftApiKey)
 
     override fun setRegion(region: Region) {
         oriannaClient.setRegion(region)
@@ -22,18 +23,28 @@ class HybridClient(apiKey: String) : RiotApiClient {
         return oriannaClient.getSummoner(name)
     }
 
+    override fun getSummonerById(id: String): SummonerResponse {
+        return oriannaClient.getSummonerById(id)
+    }
+
     override fun getRecentGames(id: String, limit: Int, queueId: Int?): List<RecentGameResponse> {
         return r4JClient.getRecentGames(id, limit, queueId)
     }
 
     override fun getRanks(id: String): List<RankResponse> {
         val leagueRanks = oriannaClient.getRanks(id)
-        val tftRanks = getTFTRanks(id)
+        // Ids are specific to API key
+        val name = getSummonerById(id).name
+        val tftRanks = getTFTRanks(name)
         return if (leagueRanks.first().tier == "unranked" && tftRanks.isNotEmpty()) {
             tftRanks
         } else {
             (leagueRanks + tftRanks).sortedByDescending { it.score }
         }
+    }
+
+    override fun getTFTRanks(name: String): List<RankResponse> {
+        return rawTFTClient.getTFTRanks(name)
     }
 
     override fun getTopChamps(id: String, limit: Int): TopChampsResponse {
@@ -60,9 +71,5 @@ class HybridClient(apiKey: String) : RiotApiClient {
 
     override fun getMatch(id: Long, summonerId: String): MatchResponse {
         return r4JClient.getMatch(id, summonerId)
-    }
-
-    override fun getTFTRanks(id: String): List<RankResponse> {
-        return r4JClient.getTFTRanks(id)
     }
 }

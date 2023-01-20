@@ -1,6 +1,6 @@
 package com.badger.lolbyte.summoner
 
-import com.badger.lolbyte.client.RiotApiClient
+import com.badger.lolbyte.client.LeagueApiClient
 
 data class SummonerResponse(
     val id: String,
@@ -10,7 +10,7 @@ data class SummonerResponse(
     val icon: Int
 )
 
-class SummonerHandler(private val client: RiotApiClient) {
+class SummonerHandler(private val client: LeagueApiClient) {
     fun getSummoner(name: String): SummonerResponse {
         return client.getSummoner(name)
     }

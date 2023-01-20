@@ -27,7 +27,7 @@ import com.badger.lolbyte.current.SummonerResponse as CurrentGameSummonerRespons
 import com.badger.lolbyte.utils.Queue as LolByteQueue
 import com.badger.lolbyte.utils.Region as LolByteRegion
 
-class OriannaClient(apiKey: String) : RiotApiClient {
+class OriannaClient(apiKey: String) : LeagueApiClient {
     init {
         Orianna.setRiotAPIKey(apiKey)
     }
@@ -50,7 +50,14 @@ class OriannaClient(apiKey: String) : RiotApiClient {
     }
 
     override fun getSummoner(name: String): SummonerResponse {
-        val summoner = Summoner.named(name).get()
+        return getSummoner(Summoner.named(name).get())
+    }
+
+    override fun getSummonerById(id: String): SummonerResponse {
+        return getSummoner(Summoner.withAccountId(id).get())
+    }
+
+    private fun getSummoner(summoner: Summoner): SummonerResponse {
         if (summoner.accountId == null) throw NotFoundException
         return SummonerResponse(
             summoner.accountId,
@@ -310,9 +317,5 @@ class OriannaClient(apiKey: String) : RiotApiClient {
             redTeam = redTeam,
             players = players.sortedBy { it.order },
         )
-    }
-
-    override fun getTFTRanks(id: String): List<RankResponse> {
-        throw UnsupportedOperationException("getTFTRanks not implemented for Orianna!")
     }
 }

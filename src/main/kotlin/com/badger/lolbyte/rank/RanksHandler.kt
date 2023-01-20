@@ -1,6 +1,6 @@
 package com.badger.lolbyte.rank
 
-import com.badger.lolbyte.client.RiotApiClient
+import com.badger.lolbyte.client.LeagueApiClient
 import com.badger.lolbyte.utils.LolByteUtils
 import kotlin.math.floor
 
@@ -62,7 +62,7 @@ private fun getLolByteScore(tier: String, division: String, points: Int): Int {
     }
 }
 
-class RanksHandler(private val client: RiotApiClient) {
+class RanksHandler(private val client: LeagueApiClient) {
     fun getRanks(id: String): RanksResponse {
         val ranks = client.getRanks(id)
         return RanksResponse(ranks.size, ranks)

@@ -1,6 +1,6 @@
 package com.badger.lolbyte.recent
 
-import com.badger.lolbyte.client.RiotApiClient
+import com.badger.lolbyte.client.LeagueApiClient
 import com.badger.lolbyte.match.ItemResponse
 
 data class RecentGamesResponse(
@@ -27,7 +27,7 @@ data class RecentGameResponse(
     val gameMode: String = "",
 )
 
-class RecentGamesHandler(private val client: RiotApiClient) {
+class RecentGamesHandler(private val client: LeagueApiClient) {
     companion object {
         private const val defaultLimit = 10
     }

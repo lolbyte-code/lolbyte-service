@@ -1,6 +1,6 @@
 package com.badger.lolbyte.statistics
 
-import com.badger.lolbyte.client.RiotApiClient
+import com.badger.lolbyte.client.LeagueApiClient
 
 data class StatisticsResponse(
     val playerStats: PlayerStatsResponse,
@@ -38,7 +38,7 @@ data class TopChampResponse(
     val points: Int,
 )
 
-class StatisticsHandler(private val client: RiotApiClient) {
+class StatisticsHandler(private val client: LeagueApiClient) {
     companion object {
         private const val defaultLimit = 10
     }

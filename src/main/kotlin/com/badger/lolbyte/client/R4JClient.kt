@@ -23,16 +23,14 @@ import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard
 import no.stelar7.api.r4j.basic.constants.types.lol.GameModeType
 import no.stelar7.api.r4j.basic.constants.types.lol.GameQueueType
 import no.stelar7.api.r4j.basic.constants.types.lol.TeamType
-import no.stelar7.api.r4j.basic.exceptions.APIResponseException
 import no.stelar7.api.r4j.impl.R4J
 import no.stelar7.api.r4j.impl.lol.builders.matchv5.match.MatchBuilder
 import no.stelar7.api.r4j.impl.lol.raw.DDragonAPI
-import no.stelar7.api.r4j.impl.tft.TFTLeagueAPI
 import no.stelar7.api.r4j.pojo.lol.match.v5.MatchParticipant
 import no.stelar7.api.r4j.pojo.lol.summoner.Summoner
 import java.util.stream.Collectors
 
-class R4JClient(apiKey: String) : RiotApiClient {
+class R4JClient(apiKey: String) : LeagueApiClient {
     private var leagueShard = LeagueShard.NA1
 
     init {
@@ -59,6 +57,10 @@ class R4JClient(apiKey: String) : RiotApiClient {
 
     override fun getSummoner(name: String): SummonerResponse {
         throw UnsupportedOperationException("getSummoner not implemented for R4J!")
+    }
+
+    override fun getSummonerById(id: String): SummonerResponse {
+        throw UnsupportedOperationException("getSummonerById not implemented for R4J!")
     }
 
     override fun getRecentGames(id: String, limit: Int, queueId: Int?): List<RecentGameResponse> {
@@ -278,26 +280,5 @@ class R4JClient(apiKey: String) : RiotApiClient {
             redTeam = redTeam,
             players = players.sortedBy { it.order },
         )
-    }
-
-    override fun getTFTRanks(id: String): List<RankResponse> {
-        val summoner = Summoner.byAccountId(leagueShard, id)
-        try {
-            val leagueEntries = TFTLeagueAPI.getInstance().getLeagueEntries(leagueShard, summoner.summonerId)
-            return leagueEntries.filter { it.queueType == GameQueueType.TEAMFIGHT_TACTICS_RANKED }.map { entry ->
-                RankResponse(
-                    tier = entry.tier.toLowerCase(),
-                    division = entry.rank,
-                    points = entry.leaguePoints,
-                    series = "",
-                    wins = entry.wins,
-                    leagueName = "",
-                    queueName = Queue.RANKED_TFT.tag,
-                    queueId = Queue.RANKED_TFT.id,
-                )
-            }
-        } catch (e: APIResponseException) {
-            return emptyList()
-        }
     }
 }

@@ -1,6 +1,6 @@
 package com.badger.lolbyte.current
 
-import com.badger.lolbyte.client.RiotApiClient
+import com.badger.lolbyte.client.LeagueApiClient
 import com.badger.lolbyte.utils.LolByteUtils
 
 data class CurrentGameResponse(
@@ -25,7 +25,7 @@ data class SummonerResponse(
     ) : this(name, selected, LolByteUtils.generateRank(tier, division), champId, teamId)
 }
 
-class CurrentGameHandler(private val client: RiotApiClient) {
+class CurrentGameHandler(private val client: LeagueApiClient) {
     fun getCurrentGame(id: String): CurrentGameResponse {
         return client.getCurrentGame(id)
     }

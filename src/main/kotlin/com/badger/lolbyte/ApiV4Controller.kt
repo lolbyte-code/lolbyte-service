@@ -38,7 +38,9 @@ class ApiV4Controller(
     riotProperties: RiotProperties,
     private val notificationProperties: NotificationProperties,
 ) {
-    private val client = HybridClient(riotProperties.apiKey)
+    private val client = HybridClient(riotProperties.leagueApiKey, riotProperties.tftApiKey)
+    // Dev mode
+    // private val client = HybridClient(riotProperties.devApiKey, riotProperties.devApiKey)
 
     @GetMapping("/notifications")
     fun getNotification(): NotificationResponse {
