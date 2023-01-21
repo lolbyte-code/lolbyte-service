@@ -61,7 +61,8 @@ class RawTFTClient(apiKey: String) : TFTApiClient {
             .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         val tftLeagueEntries = Gson().fromJson(response.body(), Array<TFTLeagueEntry>::class.java)
-        return tftLeagueEntries.map { entry ->
+        // Filter out other TFT game types
+        return tftLeagueEntries.filter { it.ratedTier == null }.map { entry ->
             RankResponse(
                 tier = entry.tier.toLowerCase(),
                 division = entry.rank,

@@ -1,6 +1,7 @@
 package com.badger.lolbyte.utils
 
 enum class Queue(val tag: String, val id: Int) {
+    UNKNOWN("Unknown", -1),
     CUSTOM("Custom", 0),
     RANKED_PREMADE_5x5("Ranked Premade 5v5", 6),
     RANKED_TEAM_3x3("Ranked Team 3v3", 41),
@@ -59,13 +60,18 @@ enum class Queue(val tag: String, val id: Int) {
     ODYSSEY_CAPTAIN("Odyssey: Captain", 1060),
     ODYSSEY_ONSLAUGHT("Odyssey: Onslaught", 1070),
     RANKED_TFT("Ranked TFT", 1100),
+    RANKED_TFT_DOUBLE_UP("Ranked TFT Double Up", 1160),
     NEXUS_BLITZ_BETA("Nexus Blitz (Beta)", 1200),
     NEXUS_BLITZ("Nexus Blitz", 1300),
     ULTBOOK("Ultimate Spellbook", 1400);
 
     companion object {
         fun getTag(id: Int?): String {
-            return values().firstOrNull { it.id == id }?.tag ?: "Unknown"
+            return values().firstOrNull { it.id == id }?.tag ?: UNKNOWN.tag
+        }
+
+        fun getQueue(name: String): Queue {
+            return values().firstOrNull { it.name == name } ?: UNKNOWN
         }
     }
 }

@@ -26,6 +26,7 @@ import no.stelar7.api.r4j.basic.constants.types.lol.TeamType
 import no.stelar7.api.r4j.impl.R4J
 import no.stelar7.api.r4j.impl.lol.builders.matchv5.match.MatchBuilder
 import no.stelar7.api.r4j.impl.lol.raw.DDragonAPI
+import no.stelar7.api.r4j.impl.lol.raw.LeagueAPI
 import no.stelar7.api.r4j.pojo.lol.match.v5.MatchParticipant
 import no.stelar7.api.r4j.pojo.lol.summoner.Summoner
 import java.util.stream.Collectors
@@ -124,7 +125,48 @@ class R4JClient(apiKey: String) : LeagueApiClient {
     }
 
     override fun getRanks(id: String): List<RankResponse> {
-        throw UnsupportedOperationException("getRanks not implemented for R4J!")
+        val summoner = Summoner.byAccountId(leagueShard, id)
+        val leagueEntries = summoner.leagueEntry
+        if (leagueEntries.isEmpty()) {
+            return listOf(
+                RankResponse(
+                    tier = "unranked",
+                    division = "",
+                    points = 0,
+                    wins = 0,
+                    series = "",
+                    leagueName = "",
+                    queueName = "",
+                    queueId = 0,
+                )
+            )
+        }
+        return leagueEntries.map { entry ->
+            val series = if (entry.isInPromos) {
+                "${entry.miniSeries.wins}W-${entry.miniSeries.losses}L"
+            } else {
+                ""
+            }
+            val leagueName = LeagueAPI.getInstance().getLeague(leagueShard, entry.leagueId).leagueName
+            val queue = Queue.getQueue(entry.queueType.apiName)
+            val queueId = if (queue != Queue.UNKNOWN) {
+                queue.id
+            } else {
+                entry.queueType.values.firstOrNull {
+                    Queue.getTag(it) != Queue.UNKNOWN.tag
+                }
+            } ?: Queue.UNKNOWN.id
+            RankResponse(
+                tier = entry.tier.toLowerCase(),
+                division = entry.rank,
+                points = entry.leaguePoints,
+                series = series,
+                wins = entry.wins,
+                leagueName = leagueName,
+                queueName = Queue.getTag(queueId),
+                queueId = queueId,
+            )
+        }
     }
 
     override fun getTopChamps(id: String, limit: Int): TopChampsResponse {

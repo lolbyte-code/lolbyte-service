@@ -32,7 +32,7 @@ class HybridClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, T
     }
 
     override fun getRanks(id: String): List<RankResponse> {
-        val leagueRanks = oriannaClient.getRanks(id)
+        val leagueRanks = r4JClient.getRanks(id)
         // Ids are specific to API key
         val name = getSummonerById(id).name
         val tftRanks = getTFTRanks(name)
