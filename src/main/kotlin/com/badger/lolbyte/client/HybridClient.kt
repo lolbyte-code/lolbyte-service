@@ -11,8 +11,7 @@ import com.badger.lolbyte.utils.Region
 
 class HybridClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTApiClient {
     private val oriannaClient = OriannaClient(leagueApiKey)
-    private val r4JClient = R4JClient(leagueApiKey)
-    private val rawTFTClient = RawTFTClient(tftApiKey)
+    private val r4JClient = R4JClient(leagueApiKey, tftApiKey)
 
     override fun setRegion(region: Region) {
         oriannaClient.setRegion(region)
@@ -44,7 +43,7 @@ class HybridClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, T
     }
 
     override fun getTFTRanks(name: String): List<RankResponse> {
-        return rawTFTClient.getTFTRanks(name)
+        return r4JClient.getTFTRanks(name)
     }
 
     override fun getTopChamps(id: String, limit: Int): TopChampsResponse {

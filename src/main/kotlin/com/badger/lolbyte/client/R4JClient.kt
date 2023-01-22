@@ -23,19 +23,20 @@ import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard
 import no.stelar7.api.r4j.basic.constants.types.lol.GameModeType
 import no.stelar7.api.r4j.basic.constants.types.lol.GameQueueType
 import no.stelar7.api.r4j.basic.constants.types.lol.TeamType
-import no.stelar7.api.r4j.impl.R4J
 import no.stelar7.api.r4j.impl.lol.builders.matchv5.match.MatchBuilder
 import no.stelar7.api.r4j.impl.lol.raw.DDragonAPI
 import no.stelar7.api.r4j.impl.lol.raw.LeagueAPI
+import no.stelar7.api.r4j.impl.tft.TFTLeagueAPI
+import no.stelar7.api.r4j.impl.tft.TFTSummonerAPI
 import no.stelar7.api.r4j.pojo.lol.match.v5.MatchParticipant
 import no.stelar7.api.r4j.pojo.lol.summoner.Summoner
 import java.util.stream.Collectors
 
-class R4JClient(apiKey: String) : LeagueApiClient {
+class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTApiClient {
     private var leagueShard = LeagueShard.NA1
 
     init {
-        R4J(APICredentials(apiKey))
+        DataCall.setCredentials(APICredentials(leagueApiKey, "", tftApiKey, "", ""))
         DataCall.setCacheProvider(FileSystemCacheProvider())
     }
 
@@ -165,6 +166,23 @@ class R4JClient(apiKey: String) : LeagueApiClient {
                 leagueName = leagueName,
                 queueName = Queue.getTag(queueId),
                 queueId = queueId,
+            )
+        }
+    }
+
+    override fun getTFTRanks(name: String): List<RankResponse> {
+        val summoner = TFTSummonerAPI.getInstance().getSummonerByName(leagueShard, name)
+        val leagueEntries = TFTLeagueAPI.getInstance().getLeagueEntries(leagueShard, summoner.summonerId)
+        return leagueEntries.filter { it.ratedTier == null }.map { entry ->
+            RankResponse(
+                tier = entry.tier.toLowerCase(),
+                division = entry.rank,
+                points = entry.leaguePoints,
+                series = "",
+                wins = entry.wins,
+                leagueName = "",
+                queueName = Queue.RANKED_TFT.tag,
+                queueId = Queue.RANKED_TFT.id,
             )
         }
     }
