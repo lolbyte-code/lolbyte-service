@@ -43,8 +43,12 @@ class ApiV4Controller(
     // private val client = HybridClient(riotProperties.devApiKey, riotProperties.devApiKey)
 
     @GetMapping("/notifications")
-    fun getNotification(): NotificationResponse {
-        return NotificationHandler.getNotification(notificationProperties.alert)
+    fun getNotification(
+        @RequestParam requestParams: Map<String, String>?
+    ): NotificationResponse {
+        // Suppress alerts for mobile
+        val alert = if (requestParams != null && requestParams.containsKey("mobile")) "" else notificationProperties.alert
+        return NotificationHandler.getNotification(alert)
     }
 
     @GetMapping("/summoners/{name}")
