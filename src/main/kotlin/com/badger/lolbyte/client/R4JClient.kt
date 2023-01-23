@@ -227,7 +227,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTA
         val topChamps = summoner.championMasteries.take(limit).map { championMastery ->
             TopChampResponse(
                 championMastery.championId,
-                getChampName(championMastery.championId),
+                "",
                 championMastery.championLevel,
                 championMastery.championPoints,
             )
@@ -236,7 +236,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTA
     }
 
     override fun getChampName(id: Int): String {
-        return dDragonAPI.getChampion(id).name
+        throw UnsupportedOperationException("getChampName not implemented for R4J!")
     }
 
     override fun getCurrentGame(id: String): CurrentGameResponse {
