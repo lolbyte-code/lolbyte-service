@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.badger"
-version = "2.3.4"
+version = "2.4.0"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -22,7 +22,6 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("com.merakianalytics.orianna:orianna:4.0.0-rc8")
     implementation("io.springfox:springfox-boot-starter:3.0.0")
     implementation("com.github.stelar7:R4J:2.2.8")
 

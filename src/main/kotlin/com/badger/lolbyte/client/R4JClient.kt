@@ -1,6 +1,7 @@
 package com.badger.lolbyte.client
 
 import com.badger.lolbyte.BadRequestException
+import com.badger.lolbyte.NotFoundException
 import com.badger.lolbyte.current.CurrentGameResponse
 import com.badger.lolbyte.match.Badge
 import com.badger.lolbyte.match.ItemResponse
@@ -15,29 +16,33 @@ import com.badger.lolbyte.summoner.SummonerResponse
 import com.badger.lolbyte.utils.LolByteUtils
 import com.badger.lolbyte.utils.Queue
 import com.badger.lolbyte.utils.Region
-import com.merakianalytics.orianna.types.common.Side
 import no.stelar7.api.r4j.basic.APICredentials
-import no.stelar7.api.r4j.basic.cache.impl.FileSystemCacheProvider
-import no.stelar7.api.r4j.basic.calling.DataCall
 import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard
 import no.stelar7.api.r4j.basic.constants.types.lol.GameModeType
 import no.stelar7.api.r4j.basic.constants.types.lol.GameQueueType
 import no.stelar7.api.r4j.basic.constants.types.lol.TeamType
+import no.stelar7.api.r4j.impl.R4J
+import no.stelar7.api.r4j.impl.R4J.LOLAPI
+import no.stelar7.api.r4j.impl.R4J.TFTAPI
 import no.stelar7.api.r4j.impl.lol.builders.matchv5.match.MatchBuilder
 import no.stelar7.api.r4j.impl.lol.raw.DDragonAPI
-import no.stelar7.api.r4j.impl.lol.raw.LeagueAPI
-import no.stelar7.api.r4j.impl.tft.TFTLeagueAPI
-import no.stelar7.api.r4j.impl.tft.TFTSummonerAPI
 import no.stelar7.api.r4j.pojo.lol.match.v5.MatchParticipant
 import no.stelar7.api.r4j.pojo.lol.summoner.Summoner
 import java.util.stream.Collectors
+import com.badger.lolbyte.current.SummonerResponse as CurrentGameSummonerResponse
 
 class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTApiClient {
+    private val leagueAPI: LOLAPI
+    private val tftAPI: TFTAPI
+    private val dDragonAPI: DDragonAPI
     private var leagueShard = LeagueShard.NA1
 
     init {
-        DataCall.setCredentials(APICredentials(leagueApiKey, "", tftApiKey, "", ""))
-        DataCall.setCacheProvider(FileSystemCacheProvider())
+        val credentials = APICredentials(leagueApiKey, "", tftApiKey, "", "")
+        val r4J = R4J(credentials)
+        leagueAPI = r4J.loLAPI
+        tftAPI = r4J.tftapi
+        dDragonAPI = r4J.dDragonAPI
     }
 
     override fun setRegion(region: Region) {
@@ -58,29 +63,35 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTA
     }
 
     override fun getSummoner(name: String): SummonerResponse {
-        throw UnsupportedOperationException("getSummoner not implemented for R4J!")
+        val summoner = leagueAPI.summonerAPI.getSummonerByName(leagueShard, name)
+        return getSummoner(summoner)
     }
 
     override fun getSummonerById(id: String): SummonerResponse {
-        throw UnsupportedOperationException("getSummonerById not implemented for R4J!")
+        val summoner = leagueAPI.summonerAPI.getSummonerById(leagueShard, id)
+        return getSummoner(summoner)
+    }
+
+    private fun getSummoner(summoner: Summoner): SummonerResponse {
+        return SummonerResponse(
+            id = summoner.summonerId,
+            region = leagueShard.realmValue,
+            name = summoner.name,
+            level = summoner.summonerLevel,
+            icon = summoner.profileIconId,
+        )
     }
 
     override fun getRecentGames(id: String, limit: Int, queueId: Int?): List<RecentGameResponse> {
-        val summoner = Summoner.byAccountId(leagueShard, id)
-        val puuid = summoner.puuid
-        val matchListBuilder = if (queueId != null && queueId != 0) {
-            val queue = getQueue(queueId) ?: throw BadRequestException("Invalid queueId $queueId")
-            summoner.leagueGames.withCount(limit).withQueue(queue)
-        } else {
-            summoner.leagueGames.withCount(limit)
-        }
+        val regionShard = leagueShard.toRegionShard()
+        val puuid = leagueAPI.summonerAPI.getSummonerById(leagueShard, id).puuid
+        val queue = if (queueId != null && queueId != 0) getQueue(queueId) ?: throw BadRequestException("Invalid queueId $queueId") else null
+        val matchList = leagueAPI.matchAPI.getMatchList(regionShard, puuid, queue, null, null, limit, null, null)
         // Matches with valid match ids can be null (Riot API bug).
-        val matchList = matchListBuilder.get().filterNotNull()
-        return matchList.parallelStream().map { matchId ->
-            val matchBuilder = MatchBuilder(leagueShard)
-            matchBuilder.withId(matchId).match
+        return matchList.filterNotNull().parallelStream().map { matchId ->
+            leagueAPI.matchAPI.getMatch(regionShard, matchId)
         }.filter {
-            it.gameCreation != 0L
+            it.gameCreation != 0L && it.gameMode != GameModeType.PRACTICETOOL
         }.map { match ->
             val participant = match.participants.first { it.puuid == puuid }
             val items = getItems(participant)
@@ -104,7 +115,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTA
                 keystone = participant.perks.perkStyles.firstOrNull()?.selections?.firstOrNull()?.perk ?: 0,
                 gameMode = match.gameMode.value,
             )
-        }.filter { it.gameMode != GameModeType.PRACTICETOOL.value }.collect(Collectors.toList())
+        }.collect(Collectors.toList())
     }
 
     private fun getQueue(queueId: Int): GameQueueType? {
@@ -114,9 +125,17 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTA
     }
 
     private fun getItems(participant: MatchParticipant): List<ItemResponse> {
-        val participantItems = listOf(participant.item0, participant.item1, participant.item2, participant.item3, participant.item4, participant.item5, participant.item6)
+        val participantItems = listOf(
+            participant.item0,
+            participant.item1,
+            participant.item2,
+            participant.item3,
+            participant.item4,
+            participant.item5,
+            participant.item6
+        )
         return participantItems.mapNotNull { itemId ->
-            val item = DDragonAPI.getInstance().getItem(itemId)
+            val item = dDragonAPI.getItem(itemId)
             if (item != null) {
                 ItemResponse(item.id, item.name, item.description)
             } else {
@@ -126,7 +145,19 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTA
     }
 
     override fun getRanks(id: String): List<RankResponse> {
-        val summoner = Summoner.byAccountId(leagueShard, id)
+        val leagueRanks = getLeagueRanks(id)
+        // Ids are specific to API key
+        val name = getSummonerById(id).name
+        val tftRanks = getTFTRanks(name)
+        return if (leagueRanks.first().tier == "unranked" && tftRanks.isNotEmpty()) {
+            tftRanks
+        } else {
+            (leagueRanks + tftRanks).sortedByDescending { it.score }
+        }
+    }
+
+    private fun getLeagueRanks(id: String): List<RankResponse> {
+        val summoner = leagueAPI.summonerAPI.getSummonerById(leagueShard, id)
         val leagueEntries = summoner.leagueEntry
         if (leagueEntries.isEmpty()) {
             return listOf(
@@ -148,15 +179,8 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTA
             } else {
                 ""
             }
-            val leagueName = LeagueAPI.getInstance().getLeague(leagueShard, entry.leagueId).leagueName
-            val queue = Queue.getQueue(entry.queueType.apiName)
-            val queueId = if (queue != Queue.UNKNOWN) {
-                queue.id
-            } else {
-                entry.queueType.values.firstOrNull {
-                    Queue.getTag(it) != Queue.UNKNOWN.tag
-                }
-            } ?: Queue.UNKNOWN.id
+            val leagueName = leagueAPI.leagueAPI.getLeague(leagueShard, entry.leagueId).leagueName
+            val queueId = getQueueId(entry.queueType)
             RankResponse(
                 tier = entry.tier.toLowerCase(),
                 division = entry.rank,
@@ -170,9 +194,20 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTA
         }
     }
 
+    private fun getQueueId(queueType: GameQueueType): Int {
+        val queue = Queue.getQueue(queueType.apiName)
+        return if (queue != Queue.UNKNOWN) {
+            queue.id
+        } else {
+            queueType.values.firstOrNull {
+                Queue.getTag(it) != Queue.UNKNOWN.tag
+            }
+        } ?: Queue.UNKNOWN.id
+    }
+
     override fun getTFTRanks(name: String): List<RankResponse> {
-        val summoner = TFTSummonerAPI.getInstance().getSummonerByName(leagueShard, name)
-        val leagueEntries = TFTLeagueAPI.getInstance().getLeagueEntries(leagueShard, summoner.summonerId)
+        val summoner = tftAPI.summonerAPI.getSummonerByName(leagueShard, name)
+        val leagueEntries = tftAPI.leagueAPI.getLeagueEntries(leagueShard, summoner.summonerId)
         return leagueEntries.filter { it.ratedTier == null }.map { entry ->
             RankResponse(
                 tier = entry.tier.toLowerCase(),
@@ -188,11 +223,11 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTA
     }
 
     override fun getTopChamps(id: String, limit: Int): TopChampsResponse {
-        val summoner = Summoner.byAccountId(leagueShard, id)
+        val summoner = leagueAPI.summonerAPI.getSummonerById(leagueShard, id)
         val topChamps = summoner.championMasteries.take(limit).map { championMastery ->
             TopChampResponse(
                 championMastery.championId,
-                "",
+                getChampName(championMastery.championId),
                 championMastery.championLevel,
                 championMastery.championPoints,
             )
@@ -201,11 +236,31 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTA
     }
 
     override fun getChampName(id: Int): String {
-        throw UnsupportedOperationException("getChampName not implemented for R4J!")
+        return dDragonAPI.getChampion(id).name
     }
 
     override fun getCurrentGame(id: String): CurrentGameResponse {
-        throw UnsupportedOperationException("getCurrentGame not implemented for R4J!")
+        val summoner = leagueAPI.summonerAPI.getSummonerById(leagueShard, id)
+        if (summoner.currentGame == null) throw NotFoundException
+        val summoners = summoner.currentGame.participants.map { participant ->
+            val entries = leagueAPI.leagueAPI.getLeagueEntries(leagueShard, participant.summonerId)
+            val rankedEntry = entries.firstOrNull {
+                it.queueType == GameQueueType.RANKED_SOLO_5X5
+            }
+            val entry = entries.firstOrNull {
+                it.queueType == summoner.currentGame.gameQueueConfig
+            } ?: rankedEntry
+            CurrentGameSummonerResponse(
+                name = participant.summonerName,
+                selected = participant.summonerId == id,
+                tier = entry?.tier?.toLowerCase() ?: "unranked",
+                division = entry?.rank ?: "",
+                champId = participant.championId,
+                teamId = participant.team.value,
+            )
+        }
+        val queueId = getQueueId(summoner.currentGame.gameQueueConfig)
+        return CurrentGameResponse(Queue.getTag(queueId), summoners)
     }
 
     override fun getMatch(id: Long, summonerId: String): MatchResponse {
@@ -252,7 +307,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTA
                 participant.tripleKills > 0 -> badges.add(Badge.TRIPLE_KILL)
             }
             PlayerResponse(
-                id = summoner.accountId,
+                id = summoner.summonerId,
                 name = summoner.name,
                 tier = entry?.tier ?: "unranked",
                 division = entry?.tierDivisionType?.division ?: "",
@@ -317,7 +372,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTA
             if (player.wards > (maxWards?.wards ?: 0)) maxWards = player
             if (player.damage > (maxDamage?.damage ?: 0)) maxDamage = player
             if (player.gold > (maxGold?.gold ?: 0)) maxGold = player
-            if (player.teamId == Side.BLUE.id) {
+            if (player.teamId == TeamType.BLUE.value) {
                 player.damageContribution = LolByteUtils.divideInts(player.damage, blueTeamDamage)
                 player.killParticipation = LolByteUtils.divideInts(player.kills + player.assists, blueTeamKills)
             } else {
