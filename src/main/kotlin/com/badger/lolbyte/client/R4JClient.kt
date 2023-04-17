@@ -31,7 +31,7 @@ import no.stelar7.api.r4j.pojo.lol.summoner.Summoner
 import java.util.stream.Collectors
 import com.badger.lolbyte.current.SummonerResponse as CurrentGameSummonerResponse
 
-class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTApiClient {
+class R4JClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
     private val leagueAPI: LOLAPI
     private val tftAPI: TFTAPI
     private val dDragonAPI: DDragonAPI

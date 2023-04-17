@@ -9,7 +9,7 @@ import com.badger.lolbyte.statistics.TopChampsResponse
 import com.badger.lolbyte.summoner.SummonerResponse
 import com.badger.lolbyte.utils.Region
 
-class HybridClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient, TFTApiClient {
+class HybridClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
     private val oriannaClient = OriannaClient(leagueApiKey)
     private val r4JClient = R4JClient(leagueApiKey, tftApiKey)
 

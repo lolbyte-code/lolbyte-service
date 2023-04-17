@@ -1,7 +1,9 @@
 package com.badger.lolbyte
 
 import com.badger.lolbyte.client.HybridClient
+import com.badger.lolbyte.client.RetryClient
 import com.badger.lolbyte.config.NotificationProperties
+import com.badger.lolbyte.config.RetryProperties
 import com.badger.lolbyte.config.RiotProperties
 import com.badger.lolbyte.current.CurrentGameHandler
 import com.badger.lolbyte.current.CurrentGameResponse
@@ -18,6 +20,7 @@ import com.badger.lolbyte.statistics.StatisticsResponse
 import com.badger.lolbyte.summoner.SummonerHandler
 import com.badger.lolbyte.summoner.SummonerResponse
 import com.badger.lolbyte.utils.Region
+import com.badger.lolbyte.utils.Retrier
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -37,8 +40,11 @@ object NotFoundException : RuntimeException()
 class ApiV4Controller(
     riotProperties: RiotProperties,
     private val notificationProperties: NotificationProperties,
+    retryProperties: RetryProperties,
 ) {
-    private val client = HybridClient(riotProperties.leagueApiKey, riotProperties.tftApiKey)
+    private val hybridClient = HybridClient(riotProperties.leagueApiKey, riotProperties.tftApiKey)
+    private val retrier = Retrier(retryProperties.intervalInSeconds, retryProperties.attempts)
+    private val client = RetryClient(hybridClient, retrier)
     // Dev mode
     // private val client = HybridClient(riotProperties.devApiKey, riotProperties.devApiKey)
 
