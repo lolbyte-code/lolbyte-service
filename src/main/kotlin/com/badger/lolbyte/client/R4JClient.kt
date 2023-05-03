@@ -278,10 +278,15 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
         var redTeamDamage = 0
 
         val players = match.participants.mapIndexed { index, participant ->
-            val summoner = Summoner.bySummonerId(leagueShard, participant.summonerId)
-            var entry = summoner.leagueEntry.firstOrNull { it.queueType == match.queue }
+            // This call fails if the participant is a bot
+            val summoner = if (participant.puuid != "BOT") {
+                 Summoner.bySummonerId(leagueShard, participant.summonerId)
+            } else {
+                null
+            }
+            var entry = summoner?.leagueEntry?.firstOrNull { it.queueType == match.queue }
             if (entry == null) {
-                entry = summoner.leagueEntry.firstOrNull { it.queueType == GameQueueType.RANKED_SOLO_5X5 }
+                entry = summoner?.leagueEntry?.firstOrNull { it.queueType == GameQueueType.RANKED_SOLO_5X5 }
             }
             val items = getItems(participant)
             // summoner spell is null for bots
@@ -307,8 +312,8 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
                 participant.tripleKills > 0 -> badges.add(Badge.TRIPLE_KILL)
             }
             PlayerResponse(
-                id = summoner.summonerId,
-                name = summoner.name,
+                id = summoner?.summonerId ?: participant.summonerId,
+                name = summoner?.name ?: participant.summonerName,
                 tier = entry?.tier ?: "unranked",
                 division = entry?.tierDivisionType?.division ?: "",
                 participantId = index + 1,
