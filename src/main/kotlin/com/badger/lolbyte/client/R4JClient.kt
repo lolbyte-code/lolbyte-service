@@ -83,6 +83,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
     }
 
     override fun getRecentGames(id: String, limit: Int, queueId: Int?): List<RecentGameResponse> {
+        val skippedGameTypes = setOf(GameModeType.PRACTICETOOL, GameModeType.CHERRY)
         val regionShard = leagueShard.toRegionShard()
         val puuid = leagueAPI.summonerAPI.getSummonerById(leagueShard, id).puuid
         val queue = if (queueId != null && queueId != 0) getQueue(queueId) ?: throw BadRequestException("Invalid queueId $queueId") else null
@@ -91,7 +92,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
         return matchList.filterNotNull().parallelStream().map { matchId ->
             leagueAPI.matchAPI.getMatch(regionShard, matchId)
         }.filter {
-            it.gameCreation != 0L && it.gameMode != GameModeType.PRACTICETOOL
+            it.gameCreation != 0L && !skippedGameTypes.contains(it.gameMode)
         }.map { match ->
             val participant = match.participants.first { it.puuid == puuid }
             val items = getItems(participant)
