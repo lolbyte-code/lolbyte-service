@@ -174,7 +174,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
                 )
             )
         }
-        return leagueEntries.map { entry ->
+        return leagueEntries.filter { it.queueType != GameQueueType.CHERRY }.map { entry ->
             val series = if (entry.isInPromos) {
                 "${entry.miniSeries.wins}W-${entry.miniSeries.losses}L"
             } else {

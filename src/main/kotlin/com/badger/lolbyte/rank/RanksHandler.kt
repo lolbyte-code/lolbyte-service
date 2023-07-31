@@ -27,7 +27,7 @@ data class RankResponse(
         queueName: String,
         queueId: Int
     ) : this(
-        tier = tier,
+        tier = if (tier == "emerald") "platinum" else tier,
         rank = LolByteUtils.generateRank(tier, division),
         score = getLolByteScore(tier, division, points),
         wins = wins,
@@ -54,10 +54,11 @@ private fun getLolByteScore(tier: String, division: String, points: Int): Int {
         "SILVER" -> floor(1150 + scale).toInt()
         "GOLD" -> floor(1500 + scale).toInt()
         "PLATINUM" -> floor(1850 + scale).toInt()
-        "DIAMOND" -> floor(2200 + scale).toInt()
-        "MASTER" -> floor(2250 + .7 * points).toInt()
-        "GRANDMASTER" -> floor(3000 + .7 * points).toInt()
-        "CHALLENGER" -> floor(3350 + .7 * points).toInt()
+        "EMERALD" -> floor(2200 + scale).toInt()
+        "DIAMOND" -> floor(2250 + scale).toInt()
+        "MASTER" -> floor(3000 + .7 * points).toInt()
+        "GRANDMASTER" -> floor(3350 + .7 * points).toInt()
+        "CHALLENGER" -> floor(3700 + .7 * points).toInt()
         else -> 0
     }
 }
