@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.badger"
-version = "2.5.5"
+version = "2.5.6"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -18,16 +18,16 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web:2.5.6")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
+    implementation("org.springframework.boot:spring-boot-starter-web:3.1.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.springfox:springfox-boot-starter:3.0.0")
-    implementation("com.github.stelar7:R4J:2.2.21")
+    implementation("com.github.stelar7:R4J:2.2.22")
     implementation("com.merakianalytics.orianna:orianna:4.0.0-rc8")
-    implementation("org.springframework.boot:spring-boot-starter-security:2.5.6")
+    implementation("org.springframework.boot:spring-boot-starter-security:3.0.4")
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test:2.5.6")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:3.1.0")
 }
 
 tasks.withType<KotlinCompile> {
