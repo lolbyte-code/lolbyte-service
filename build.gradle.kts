@@ -10,7 +10,7 @@ plugins {
 
 group = "com.badger"
 version = "2.5.6"
-java.sourceCompatibility = JavaVersion.VERSION_11
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
