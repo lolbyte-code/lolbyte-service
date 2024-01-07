@@ -210,6 +210,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
         val summoner = tftAPI.summonerAPI.getSummonerByName(leagueShard, name)
         val leagueEntries = tftAPI.leagueAPI.getLeagueEntries(leagueShard, summoner.summonerId)
         return leagueEntries.filter { it.ratedTier == null }.map { entry ->
+            val queueId = entry.queueType.values.firstOrNull() ?: Queue.RANKED_TFT.id
             RankResponse(
                 tier = entry.tier.toLowerCase(),
                 division = entry.rank,
@@ -217,8 +218,8 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
                 series = "",
                 wins = entry.wins,
                 leagueName = "",
-                queueName = Queue.RANKED_TFT.tag,
-                queueId = Queue.RANKED_TFT.id,
+                queueName = Queue.getTag(queueId),
+                queueId = queueId,
             )
         }
     }
