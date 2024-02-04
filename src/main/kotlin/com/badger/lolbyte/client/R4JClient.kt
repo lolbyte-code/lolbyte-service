@@ -282,7 +282,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
         val players = match.participants.mapIndexed { index, participant ->
             // This call fails if the participant is a bot
             val summoner = if (participant.puuid != "BOT") {
-                 Summoner.bySummonerId(leagueShard, participant.summonerId)
+                Summoner.bySummonerId(leagueShard, participant.summonerId)
             } else {
                 null
             }
