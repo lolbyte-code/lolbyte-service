@@ -2,6 +2,8 @@ package com.badger.lolbyte
 
 import com.badger.lolbyte.client.HybridClient
 import com.badger.lolbyte.client.RetryClient
+import com.badger.lolbyte.client.withCaching
+import com.badger.lolbyte.config.CacheProperties
 import com.badger.lolbyte.config.NotificationProperties
 import com.badger.lolbyte.config.RetryProperties
 import com.badger.lolbyte.config.RiotProperties
@@ -41,10 +43,11 @@ class ApiV4Controller(
     riotProperties: RiotProperties,
     private val notificationProperties: NotificationProperties,
     retryProperties: RetryProperties,
+    cacheProperties: CacheProperties,
 ) {
     private val hybridClient = HybridClient(riotProperties.leagueApiKey, riotProperties.tftApiKey)
     private val retrier = Retrier(retryProperties.intervalInSeconds, retryProperties.attempts)
-    private val client = RetryClient(hybridClient, retrier)
+    private val client = RetryClient(hybridClient, retrier).withCaching(cacheProperties)
     // Dev mode
     // private val client = HybridClient(riotProperties.devApiKey, riotProperties.devApiKey)
 

@@ -9,7 +9,7 @@ import com.badger.lolbyte.summoner.SummonerResponse
 import com.badger.lolbyte.utils.Region
 import org.junit.jupiter.api.Assertions
 
-class TestClient(
+open class TestClient(
     private val summonerResponse: SummonerResponse? = null,
     private val recentGamesResponse: List<RecentGameResponse>? = null,
     private val ranksResponse: List<RankResponse>? = null,
@@ -17,7 +17,8 @@ class TestClient(
     private val champMapping: Map<Int, String>? = null,
     private val currentGameResponse: CurrentGameResponse? = null,
     private val matchResponse: MatchResponse? = null,
-) : LeagueApiClient {
+    private val tftRanksResponse: List<RankResponse>? = null,
+) : AllApiClient {
     override fun setRegion(region: Region) {}
 
     override fun getSummoner(name: String): SummonerResponse {
@@ -50,5 +51,9 @@ class TestClient(
 
     override fun getMatch(id: Long, summonerId: String): MatchResponse {
         return matchResponse ?: Assertions.fail("No matchResponse provided")
+    }
+
+    override fun getTFTRanks(name: String): List<RankResponse> {
+        return tftRanksResponse ?: Assertions.fail("No tftRanksResponse provided")
     }
 }
