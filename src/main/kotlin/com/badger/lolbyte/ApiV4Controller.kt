@@ -47,8 +47,6 @@ class ApiV4Controller(
     private val client = R4JClient(riotProperties.leagueApiKey, riotProperties.tftApiKey)
         .withRetry(retryProperties)
         .withCaching(cacheProperties)
-    // Dev mode
-    // private val client = HybridClient(riotProperties.devApiKey, riotProperties.devApiKey)
 
     @GetMapping("/notifications")
     fun getNotification(
