@@ -1,6 +1,7 @@
 package com.badger.lolbyte.client
 
 import com.badger.lolbyte.NotFoundException
+import com.badger.lolbyte.config.RetryProperties
 import com.badger.lolbyte.current.CurrentGameResponse
 import com.badger.lolbyte.match.MatchResponse
 import com.badger.lolbyte.rank.RankResponse
@@ -63,4 +64,9 @@ class RetryClient(private val client: LeagueApiClient, private val retrier: Retr
         }
     }
     override fun getMatch(id: Long, summonerId: String): MatchResponse = retrier.withRetry { client.getMatch(id, summonerId) }
+}
+
+fun LeagueApiClient.withRetry(retryProperties: RetryProperties): LeagueApiClient {
+    val retrier = Retrier(retryProperties.intervalInSeconds, retryProperties.attempts)
+    return RetryClient(this, retrier)
 }

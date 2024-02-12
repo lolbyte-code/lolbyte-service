@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.badger"
-version = "2.6.0"
+version = "2.7.0"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
@@ -24,8 +24,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.springfox:springfox-boot-starter:3.0.0")
     implementation("com.github.stelar7:R4J:2.4.0")
-    implementation("com.merakianalytics.orianna:orianna:4.0.0-rc8")
     implementation("org.springframework.boot:spring-boot-starter-security:3.0.4")
+    implementation("org.cache2k:cache2k-core:2.6.1.Final")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.1.0")
 }

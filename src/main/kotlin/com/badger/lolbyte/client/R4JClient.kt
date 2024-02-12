@@ -238,7 +238,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     }
 
     override fun getChampName(id: Int): String {
-        throw UnsupportedOperationException("getChampName not implemented for R4J!")
+        return dDragonAPI.getChampion(id).name
     }
 
     override fun getCurrentGame(id: String): CurrentGameResponse {

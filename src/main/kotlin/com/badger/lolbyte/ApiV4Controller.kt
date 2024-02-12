@@ -1,8 +1,8 @@
 package com.badger.lolbyte
 
-import com.badger.lolbyte.client.HybridClient
-import com.badger.lolbyte.client.RetryClient
+import com.badger.lolbyte.client.R4JClient
 import com.badger.lolbyte.client.withCaching
+import com.badger.lolbyte.client.withRetry
 import com.badger.lolbyte.config.CacheProperties
 import com.badger.lolbyte.config.NotificationProperties
 import com.badger.lolbyte.config.RetryProperties
@@ -22,7 +22,6 @@ import com.badger.lolbyte.statistics.StatisticsResponse
 import com.badger.lolbyte.summoner.SummonerHandler
 import com.badger.lolbyte.summoner.SummonerResponse
 import com.badger.lolbyte.utils.Region
-import com.badger.lolbyte.utils.Retrier
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -45,9 +44,9 @@ class ApiV4Controller(
     retryProperties: RetryProperties,
     cacheProperties: CacheProperties,
 ) {
-    private val hybridClient = HybridClient(riotProperties.leagueApiKey, riotProperties.tftApiKey)
-    private val retrier = Retrier(retryProperties.intervalInSeconds, retryProperties.attempts)
-    private val client = RetryClient(hybridClient, retrier).withCaching(cacheProperties)
+    private val client = R4JClient(riotProperties.leagueApiKey, riotProperties.tftApiKey)
+        .withRetry(retryProperties)
+        .withCaching(cacheProperties)
     // Dev mode
     // private val client = HybridClient(riotProperties.devApiKey, riotProperties.devApiKey)
 
