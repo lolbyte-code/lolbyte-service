@@ -11,7 +11,7 @@ import com.badger.lolbyte.utils.Region
 import com.badger.lolbyte.utils.Retrier
 import java.lang.NullPointerException
 
-class RetryClient(private val client: AllApiClient, private val retrier: Retrier) : AllApiClient {
+class RetryClient(private val client: LeagueApiClient, private val retrier: Retrier) : LeagueApiClient {
     override fun setRegion(region: Region) = client.setRegion(region)
     override fun getSummoner(name: String): SummonerResponse {
         return try {
@@ -63,11 +63,4 @@ class RetryClient(private val client: AllApiClient, private val retrier: Retrier
         }
     }
     override fun getMatch(id: Long, summonerId: String): MatchResponse = retrier.withRetry { client.getMatch(id, summonerId) }
-    override fun getTFTRanks(name: String): List<RankResponse> {
-        return try {
-            retrier.withRetry { client.getTFTRanks(name) }
-        } catch (e: NullPointerException) {
-            emptyList()
-        }
-    }
 }

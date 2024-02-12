@@ -13,9 +13,9 @@ import org.cache2k.Cache2kBuilder
 import java.util.concurrent.TimeUnit
 
 private class CachingClient(
-    private val client: AllApiClient,
+    private val client: LeagueApiClient,
     cacheProperties: CacheProperties
-) : AllApiClient {
+) : LeagueApiClient {
     companion object {
         inline fun <reified K, reified V> buildCache(expirationMinutes: Long): Cache<K, V> {
             val builder = Cache2kBuilder.of(K::class.java, V::class.java)
@@ -35,7 +35,6 @@ private class CachingClient(
     val topChamps = buildCache<String, TopChampsResponse>(cacheProperties.topChampsTtl)
     val champById = buildCache<Int, String>(cacheProperties.champTtl)
     val match = buildCache<String, MatchResponse>(cacheProperties.matchTtl)
-    val tftRanks = buildCache<String, List<RankResponse>>(cacheProperties.ranksTtl)
 
     override fun setRegion(region: Region) {
         client.setRegion(region)
@@ -86,14 +85,8 @@ private class CachingClient(
             client.getMatch(id, summonerId)
         }
     }
-
-    override fun getTFTRanks(name: String): List<RankResponse> {
-        return tftRanks.computeIfAbsent(name) {
-            client.getTFTRanks(name)
-        }
-    }
 }
 
-fun AllApiClient.withCaching(cacheProperties: CacheProperties): AllApiClient {
+fun LeagueApiClient.withCaching(cacheProperties: CacheProperties): LeagueApiClient {
     return CachingClient(this, cacheProperties)
 }

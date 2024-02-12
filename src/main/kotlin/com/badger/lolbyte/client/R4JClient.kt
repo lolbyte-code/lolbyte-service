@@ -31,7 +31,7 @@ import no.stelar7.api.r4j.pojo.lol.summoner.Summoner
 import java.util.stream.Collectors
 import com.badger.lolbyte.current.SummonerResponse as CurrentGameSummonerResponse
 
-class R4JClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
+class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     private val leagueAPI: LOLAPI
     private val tftAPI: TFTAPI
     private val dDragonAPI: DDragonAPI
@@ -157,6 +157,24 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
         }
     }
 
+    private fun getTFTRanks(name: String): List<RankResponse> {
+        val summoner = tftAPI.summonerAPI.getSummonerByName(leagueShard, name)
+        val leagueEntries = tftAPI.leagueAPI.getLeagueEntries(leagueShard, summoner.summonerId)
+        return leagueEntries.filter { it.ratedTier == null }.map { entry ->
+            val queueId = entry.queueType.values.firstOrNull() ?: Queue.RANKED_TFT.id
+            RankResponse(
+                tier = entry.tier.toLowerCase(),
+                division = entry.rank,
+                points = entry.leaguePoints,
+                series = "",
+                wins = entry.wins,
+                leagueName = "",
+                queueName = Queue.getTag(queueId),
+                queueId = queueId,
+            )
+        }
+    }
+
     private fun getLeagueRanks(id: String): List<RankResponse> {
         val summoner = leagueAPI.summonerAPI.getSummonerById(leagueShard, id)
         val leagueEntries = summoner.leagueEntry
@@ -204,24 +222,6 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
                 Queue.getTag(it) != Queue.UNKNOWN.tag
             }
         } ?: Queue.UNKNOWN.id
-    }
-
-    override fun getTFTRanks(name: String): List<RankResponse> {
-        val summoner = tftAPI.summonerAPI.getSummonerByName(leagueShard, name)
-        val leagueEntries = tftAPI.leagueAPI.getLeagueEntries(leagueShard, summoner.summonerId)
-        return leagueEntries.filter { it.ratedTier == null }.map { entry ->
-            val queueId = entry.queueType.values.firstOrNull() ?: Queue.RANKED_TFT.id
-            RankResponse(
-                tier = entry.tier.toLowerCase(),
-                division = entry.rank,
-                points = entry.leaguePoints,
-                series = "",
-                wins = entry.wins,
-                leagueName = "",
-                queueName = Queue.getTag(queueId),
-                queueId = queueId,
-            )
-        }
     }
 
     override fun getTopChamps(id: String, limit: Int): TopChampsResponse {

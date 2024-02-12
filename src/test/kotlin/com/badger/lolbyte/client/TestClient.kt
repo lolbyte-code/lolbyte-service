@@ -17,8 +17,7 @@ open class TestClient(
     private val champMapping: Map<Int, String>? = null,
     private val currentGameResponse: CurrentGameResponse? = null,
     private val matchResponse: MatchResponse? = null,
-    private val tftRanksResponse: List<RankResponse>? = null,
-) : AllApiClient {
+) : LeagueApiClient {
     override fun setRegion(region: Region) {}
 
     override fun getSummoner(name: String): SummonerResponse {
@@ -51,9 +50,5 @@ open class TestClient(
 
     override fun getMatch(id: Long, summonerId: String): MatchResponse {
         return matchResponse ?: Assertions.fail("No matchResponse provided")
-    }
-
-    override fun getTFTRanks(name: String): List<RankResponse> {
-        return tftRanksResponse ?: Assertions.fail("No tftRanksResponse provided")
     }
 }

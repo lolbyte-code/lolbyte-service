@@ -9,7 +9,7 @@ import com.badger.lolbyte.statistics.TopChampsResponse
 import com.badger.lolbyte.summoner.SummonerResponse
 import com.badger.lolbyte.utils.Region
 
-class HybridClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
+class HybridClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     private val oriannaClient = OriannaClient(leagueApiKey)
     private val r4JClient = R4JClient(leagueApiKey, tftApiKey)
 
@@ -32,10 +32,6 @@ class HybridClient(leagueApiKey: String, tftApiKey: String) : AllApiClient {
 
     override fun getRanks(id: String): List<RankResponse> {
         return r4JClient.getRanks(id)
-    }
-
-    override fun getTFTRanks(name: String): List<RankResponse> {
-        return r4JClient.getTFTRanks(name)
     }
 
     override fun getTopChamps(id: String, limit: Int): TopChampsResponse {
