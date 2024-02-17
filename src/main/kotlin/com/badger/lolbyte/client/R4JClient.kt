@@ -17,8 +17,6 @@ import com.badger.lolbyte.utils.LolByteUtils
 import com.badger.lolbyte.utils.Queue
 import com.badger.lolbyte.utils.Region
 import no.stelar7.api.r4j.basic.APICredentials
-import no.stelar7.api.r4j.basic.cache.impl.EmptyCacheProvider
-import no.stelar7.api.r4j.basic.calling.DataCall
 import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard
 import no.stelar7.api.r4j.basic.constants.types.lol.GameModeType
 import no.stelar7.api.r4j.basic.constants.types.lol.GameQueueType
