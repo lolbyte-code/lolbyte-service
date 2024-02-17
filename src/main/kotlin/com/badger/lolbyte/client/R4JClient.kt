@@ -41,8 +41,8 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
 
     init {
         val credentials = APICredentials(leagueApiKey, "", tftApiKey, "", "")
+        // Do not change the cache provider
         val r4J = R4J(credentials)
-        DataCall.setCacheProvider(EmptyCacheProvider.INSTANCE)
         leagueAPI = r4J.loLAPI
         tftAPI = r4J.tftapi
         dDragonAPI = r4J.dDragonAPI
