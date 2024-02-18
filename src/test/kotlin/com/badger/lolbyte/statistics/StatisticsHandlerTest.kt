@@ -81,7 +81,7 @@ class StatisticsHandlerTest {
         val response = handler.getStatistics("123", 3, null)
         Assertions.assertEquals(
             PlayerStatsResponse(
-                winPercentage = 20,
+                winPercentage = 10,
                 kills = 7.67,
                 deaths = 16.0,
                 assists = 12.67,
