@@ -13,6 +13,7 @@ import com.badger.lolbyte.recent.RecentGameResponse
 import com.badger.lolbyte.statistics.TopChampResponse
 import com.badger.lolbyte.statistics.TopChampsResponse
 import com.badger.lolbyte.summoner.SummonerResponse
+import com.badger.lolbyte.utils.Cache
 import com.badger.lolbyte.utils.LolByteUtils
 import com.badger.lolbyte.utils.Queue
 import com.badger.lolbyte.utils.Region
@@ -37,6 +38,9 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     private val dDragonAPI: DDragonAPI
     private var leagueShard = LeagueShard.NA1
 
+    private val items = Cache.buildCache<Int, ItemResponse>(Cache.eternalTtl)
+    private val champs = Cache.buildCache<Int, String>(Cache.eternalTtl)
+
     init {
         val credentials = APICredentials(leagueApiKey, "", tftApiKey, "", "")
         // Do not change the cache provider
@@ -44,6 +48,14 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
         leagueAPI = r4J.loLAPI
         tftAPI = r4J.tftapi
         dDragonAPI = r4J.dDragonAPI
+
+        dDragonAPI.items.forEach {
+            items.put(it.key, ItemResponse(it.value.id, it.value.name, it.value.description))
+        }
+
+        dDragonAPI.champions.forEach {
+            champs.put(it.key, it.value.name)
+        }
     }
 
     override fun setRegion(region: Region) {
@@ -137,12 +149,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
             participant.item6
         )
         return participantItems.mapNotNull { itemId ->
-            val item = dDragonAPI.getItem(itemId)
-            if (item != null) {
-                ItemResponse(item.id, item.name, item.description)
-            } else {
-                null
-            }
+            items[itemId]
         }
     }
 
@@ -239,7 +246,9 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     }
 
     override fun getChampName(id: Int): String {
-        return dDragonAPI.getChampion(id).name
+        return champs.computeIfAbsent(id) {
+            dDragonAPI.getChampion(id).name
+        }
     }
 
     override fun getCurrentGame(id: String): CurrentGameResponse {
