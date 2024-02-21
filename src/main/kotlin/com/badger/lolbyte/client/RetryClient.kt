@@ -12,7 +12,7 @@ import com.badger.lolbyte.utils.Region
 import com.badger.lolbyte.utils.Retrier
 import java.lang.NullPointerException
 
-class RetryClient(private val client: LeagueApiClient, private val retrier: Retrier) : LeagueApiClient {
+private class RetryClient(private val client: LeagueApiClient, private val retrier: Retrier) : LeagueApiClient {
     override fun setRegion(region: Region) = client.setRegion(region)
     override fun getSummoner(name: String): SummonerResponse {
         return try {
