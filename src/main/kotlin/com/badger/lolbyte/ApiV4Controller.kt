@@ -1,7 +1,9 @@
 package com.badger.lolbyte
 
 import com.badger.lolbyte.client.R4JClient
+import com.badger.lolbyte.client.withCaching
 import com.badger.lolbyte.client.withRetry
+import com.badger.lolbyte.config.CacheProperties
 import com.badger.lolbyte.config.NotificationProperties
 import com.badger.lolbyte.config.RetryProperties
 import com.badger.lolbyte.config.RiotProperties
@@ -40,8 +42,11 @@ class ApiV4Controller(
     riotProperties: RiotProperties,
     private val notificationProperties: NotificationProperties,
     retryProperties: RetryProperties,
+    cacheProperties: CacheProperties,
 ) {
-    private val client = R4JClient(riotProperties.leagueApiKey, riotProperties.tftApiKey).withRetry(retryProperties)
+    private val client = R4JClient(riotProperties.leagueApiKey, riotProperties.tftApiKey)
+        .withRetry(retryProperties)
+        .withCaching(cacheProperties)
 
     @GetMapping("/notifications")
     fun getNotification(
