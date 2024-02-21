@@ -19,7 +19,7 @@ LolByte's primary dependency is [R4J](https://github.com/stelar7/R4J) which is u
 ## Build
 
 ```bash
-> ./gradlew build
+./gradlew build
 ```
 
 ## Update Docker Image
@@ -27,8 +27,8 @@ LolByte's primary dependency is [R4J](https://github.com/stelar7/R4J) which is u
 Creates a new docker image and pushes to the Digital Ocean container registry.
 
 ```bash
-> ./gradlew bootBuildImage --imageName=registry.digitalocean.com/lolbyte/lolbyte-service:<version>
-> docker push registry.digitalocean.com/lolbyte/lolbyte-service:<version>
+./gradlew bootBuildImage --imageName=registry.digitalocean.com/lolbyte/lolbyte-service:<version>
+docker push registry.digitalocean.com/lolbyte/lolbyte-service:<version>
 ```
 
 ## Run E2E Tests
@@ -36,7 +36,7 @@ Creates a new docker image and pushes to the Digital Ocean container registry.
 Start LolByte locally (on `localhost:8080`) and run the following:
 
 ```bash
-> postman collection run postman/LolByte.postman_collection.json
+postman collection run postman/LolByte.postman_collection.json
 ```
 
 ## Deploy
@@ -44,7 +44,7 @@ Start LolByte locally (on `localhost:8080`) and run the following:
 Update `kube/lolbyte.yaml` with the above version and run:
 
 ```bash
-> kubectl apply -f kube/lolbyte.yaml
+kubectl apply -f kube/lolbyte.yaml
 ```
 
 ## Access Metrics CronJob
@@ -54,9 +54,9 @@ The cronjob defined in `kube/access_metrics_cronjob.yaml` utilizes a Docker cont
 ### Update CronJob Docker Image
 
 ```bash
-> docker build -t access-metrics:<version> access-metrics/.
-> docker tag access-metrics:<version> registry.digitalocean.com/lolbyte/access-metrics:<version>
-> docker push registry.digitalocean.com/lolbyte/access-metrics:<version>
+docker build -t access-metrics:<version> access-metrics/.
+docker tag access-metrics:<version> registry.digitalocean.com/lolbyte/access-metrics:<version>
+docker push registry.digitalocean.com/lolbyte/access-metrics:<version>
 ```
 
 ### Useful Kubernetes Commands
@@ -64,7 +64,7 @@ The cronjob defined in `kube/access_metrics_cronjob.yaml` utilizes a Docker cont
 Restart deployment:
 
 ```bash
-> kubectl rollout restart deployment lolbyte
+kubectl rollout restart deployment lolbyte
 ```
 
 ### Resources
