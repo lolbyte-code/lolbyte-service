@@ -31,6 +31,14 @@ Creates a new docker image and pushes to the Digital Ocean container registry.
 > docker push registry.digitalocean.com/lolbyte/lolbyte-service:<version>
 ```
 
+## Run E2E Tests
+
+Start LolByte locally (on `localhost:8080`) and run the following:
+
+```bash
+> postman collection run postman/LolByte.postman_collection.json
+```
+
 ## Deploy
 
 Update `kube/lolbyte.yaml` with the above version and run:

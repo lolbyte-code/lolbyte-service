@@ -1,0 +1,567 @@
+{
+	"info": {
+		"name": "LolByte",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Basic API Flow",
+			"item": [
+				{
+					"name": "/api/v4/notifications",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {",
+									"    pm.expect(pm.response.code).to.equal(404);",
+									"});",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"pm.test(\"Response has the required fields - timestamp, status, error, and path\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.timestamp).to.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}\\+\\d{2}:\\d{2}$/);",
+									"    pm.expect(responseData.status).to.exist;",
+									"    pm.expect(responseData.error).is.to.equal(\"Not Found\");",
+									"    pm.expect(responseData.path).is.to.equal(\"/api/v4/notifications\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseURL}}/api/v4/notifications",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"v4",
+								"notifications"
+							]
+						}
+					}
+				},
+				{
+					"name": "/api/v4/summoners/<summonerName>",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"pm.test(\"Response has the required fields - id, region, name, level, and path\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.id).to.match(/^[A-z0-9_-]{47}$/);",
+									"    pm.variables.set(\"summonerId\", responseData.id)",
+									"    pm.expect(responseData.region).is.to.equal(pm.variables.get(\"region\"));",
+									"    pm.expect(responseData.name).is.to.equal(pm.variables.get(\"summonerName\"));",
+									"    pm.expect(responseData.level).to.be.an('number');",
+									"    pm.expect(responseData.icon).to.be.an('number');",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseURL}}/api/v4/summoners/{{summonerName}}?region={{region}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"v4",
+								"summoners",
+								"{{summonerName}}"
+							],
+							"query": [
+								{
+									"key": "region",
+									"value": "{{region}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "/api/v4/recentGames/<summonerId>",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"pm.test(\"Response has the required fields - total, data\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.total).to.match(/^\\d+$/);",
+									"    pm.expect(responseData.data).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Response data has the required fields - id, timestamp, teamId, champId, win, kills, deaths, assists, wards, cs, queueName, duration, items, spells, keystone, and gameMode\", function () {",
+									"    const responseData = pm.response.json().data;",
+									"",
+									"    pm.expect(responseData).to.be.an('array');",
+									"",
+									"    const matchEntryResponse = responseData[0];",
+									"    pm.expect(matchEntryResponse.id).to.be.an('number');",
+									"    pm.variables.set(\"matchId\", matchEntryResponse.id)",
+									"    pm.expect(matchEntryResponse.timestamp).to.be.an('number');",
+									"    pm.expect(matchEntryResponse.teamId).to.be.an('number');",
+									"    pm.expect(matchEntryResponse.champId).to.be.an('number');",
+									"    pm.expect(matchEntryResponse.win).to.be.an('boolean');",
+									"    pm.expect(matchEntryResponse.kills).to.be.an('number');",
+									"    pm.expect(matchEntryResponse.deaths).to.be.an('number');",
+									"    pm.expect(matchEntryResponse.assists).to.be.an('number');",
+									"    pm.expect(matchEntryResponse.wards).to.be.an('number');",
+									"    pm.expect(matchEntryResponse.cs).to.be.an('number');",
+									"    pm.expect(matchEntryResponse.queueName).to.be.an('string');",
+									"    pm.expect(matchEntryResponse.duration).to.be.an('number');",
+									"    pm.expect(matchEntryResponse.items).to.be.an('array');",
+									"    pm.expect(matchEntryResponse.spells).to.be.an('array');",
+									"    pm.expect(matchEntryResponse.spells[0]).to.be.an('number');",
+									"    pm.expect(matchEntryResponse.keystone).to.be.an('number');",
+									"    pm.expect(matchEntryResponse.gameMode).to.be.an('string');",
+									"});",
+									"",
+									"pm.test(\"Response data items has the required fields - id, name, desc\", function () {",
+									"    const responseData = pm.response.json().data[0].items;",
+									"",
+									"    pm.expect(responseData).to.be.an('array');",
+									"",
+									"    const itemEntryResponse = responseData[0];",
+									"    pm.expect(itemEntryResponse.id).to.be.an('number');",
+									"    pm.expect(itemEntryResponse.name).to.be.an('string');",
+									"    pm.expect(itemEntryResponse.desc).to.be.an('string');",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseURL}}/api/v4/recentGames/{{summonerId}}?region={{region}}&queueId=0",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"v4",
+								"recentGames",
+								"{{summonerId}}"
+							],
+							"query": [
+								{
+									"key": "region",
+									"value": "{{region}}"
+								},
+								{
+									"key": "queueId",
+									"value": "0"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "/api/v4/ranks/<summonerId>",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"pm.test(\"Response has the required fields - total, data\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.total).to.match(/^\\d+$/);",
+									"    pm.expect(responseData.data).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Response data has the required fields - tier, rank, score, wins, leagueName, lp, series, queueName, and queueId\", function () {",
+									"    const responseData = pm.response.json().data;",
+									"",
+									"    pm.expect(responseData).to.be.an('array');",
+									"",
+									"    const leagueEntryResponse = responseData[0];",
+									"    pm.expect(leagueEntryResponse.tier).to.be.an('string');",
+									"    pm.expect(leagueEntryResponse.rank).to.be.an('string');",
+									"    pm.expect(leagueEntryResponse.score).to.be.an('number');",
+									"    pm.expect(leagueEntryResponse.wins).to.be.an('number');",
+									"    pm.expect(leagueEntryResponse.leagueName).to.be.an('string');",
+									"    pm.expect(leagueEntryResponse.lp).to.be.an('number');",
+									"    pm.expect(leagueEntryResponse.series).to.be.an('string');",
+									"    pm.expect(leagueEntryResponse.queueName).to.be.an('string');",
+									"    pm.expect(leagueEntryResponse.queueId).to.be.an('number');",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseURL}}/api/v4/ranks/{{summonerId}}?region={{region}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"v4",
+								"ranks",
+								"{{summonerId}}"
+							],
+							"query": [
+								{
+									"key": "region",
+									"value": "{{region}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "/api/v4/statistics/<summonerId>",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"pm.test(\"Response has the required fields - playerStats, mostPlayedChamps, and topChamps\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.playerStats).to.be.an('object');",
+									"    pm.expect(responseData.mostPlayedChamps).to.be.an('object');",
+									"    pm.expect(responseData.topChamps).to.be.an('object');",
+									"});",
+									"",
+									"pm.test(\"Response playerStats has the required fields - winPercentage, kills, deaths, assists, wards, and games\", function () {",
+									"    const responseData = pm.response.json().playerStats",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.winPercentage).to.be.an('number');",
+									"    pm.expect(responseData.kills).to.be.an('number');",
+									"    pm.expect(responseData.deaths).to.be.an('number');",
+									"    pm.expect(responseData.assists).to.be.an('number');",
+									"    pm.expect(responseData.wards).to.be.an('number');",
+									"    pm.expect(responseData.games).to.be.an('number');",
+									"});",
+									"",
+									"pm.test(\"Response mostPlayedChamps has the required fields - champs\", function () {",
+									"    const responseData = pm.response.json().mostPlayedChamps",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.champs).to.be.an('array');",
+									"    pm.expect(responseData.champs[0].id).to.be.an('number');",
+									"    pm.expect(responseData.champs[0].name).to.be.an('string');",
+									"    pm.expect(responseData.champs[0].gamesPlayed).to.be.an('number');",
+									"});",
+									"",
+									"pm.test(\"Response topChamps has the required fields - champs\", function () {",
+									"    const responseData = pm.response.json().topChamps",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.champs).to.be.an('array');",
+									"    pm.expect(responseData.champs[0].id).to.be.an('number');",
+									"    pm.expect(responseData.champs[0].name).to.be.an('string');",
+									"    pm.expect(responseData.champs[0].level).to.be.an('number');",
+									"    pm.expect(responseData.champs[0].points).to.be.an('number');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseURL}}/api/v4/statistics/{{summonerId}}?region={{region}}&queueId=0",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"v4",
+								"statistics",
+								"{{summonerId}}"
+							],
+							"query": [
+								{
+									"key": "region",
+									"value": "{{region}}"
+								},
+								{
+									"key": "queueId",
+									"value": "0"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "/api/v4/current/<summonerId>",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 404\", function () {",
+									"    pm.expect(pm.response.code).to.equal(404);",
+									"});",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"pm.test(\"Response has the required fields - timestamp, status, error, and path\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.timestamp).to.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}\\+\\d{2}:\\d{2}$/);",
+									"    pm.expect(responseData.status).to.exist;",
+									"    pm.expect(responseData.error).is.to.equal(\"Not Found\");",
+									"    pm.expect(responseData.path).to.match(/^\\/api\\/v4\\/current\\/[A-z0-9_-]{47}$/);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseURL}}/api/v4/current/{{summonerId}}?region={{region}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"v4",
+								"current",
+								"{{summonerId}}"
+							],
+							"query": [
+								{
+									"key": "region",
+									"value": "{{region}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "/api/v4/matches/<matchId>",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"pm.test(\"Response has the required fields - id, queueName, duration, timestamp, blueTeam, redTeam, and players\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.id).to.be.an('number');",
+									"    pm.expect(responseData.queueName).to.be.an('string');",
+									"    pm.expect(responseData.duration).to.be.an('number');",
+									"    pm.expect(responseData.timestamp).to.be.an('number');",
+									"    pm.expect(responseData.blueTeam).to.be.an('object');",
+									"    pm.expect(responseData.redTeam).to.be.an('object');",
+									"    pm.expect(responseData.players).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Response blueTeam has the required fields - id, win, towers, dragons, barons, gold, kills, deaths, assists, and bans\", function () {",
+									"    const responseData = pm.response.json().blueTeam",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.id).to.be.an('number');",
+									"    pm.expect(responseData.win).to.be.an('boolean');",
+									"    pm.expect(responseData.towers).to.be.an('number');",
+									"    pm.expect(responseData.dragons).to.be.an('number');",
+									"    pm.expect(responseData.barons).to.be.an('number');",
+									"    pm.expect(responseData.gold).to.be.an('number');",
+									"    pm.expect(responseData.kills).to.be.an('number');",
+									"    pm.expect(responseData.deaths).to.be.an('number');",
+									"    pm.expect(responseData.assists).to.be.an('number');",
+									"    pm.expect(responseData.bans).to.be.an('array');",
+									"    pm.expect(responseData.bans[0]).to.be.an('number');",
+									"});",
+									"",
+									"pm.test(\"Response redTeam has the required fields - id, win, towers, dragons, barons, gold, kills, deaths, assists, and bans\", function () {",
+									"    const responseData = pm.response.json().redTeam",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.id).to.be.an('number');",
+									"    pm.expect(responseData.win).to.be.an('boolean');",
+									"    pm.expect(responseData.towers).to.be.an('number');",
+									"    pm.expect(responseData.dragons).to.be.an('number');",
+									"    pm.expect(responseData.barons).to.be.an('number');",
+									"    pm.expect(responseData.gold).to.be.an('number');",
+									"    pm.expect(responseData.kills).to.be.an('number');",
+									"    pm.expect(responseData.deaths).to.be.an('number');",
+									"    pm.expect(responseData.assists).to.be.an('number');",
+									"    pm.expect(responseData.bans).to.be.an('array');",
+									"    pm.expect(responseData.bans[0]).to.be.an('number');",
+									"});",
+									"",
+									"pm.test(\"Response players has the required fields - id, name, rank, participantId, teamId, champId, champName, kills, deaths, assists, gold, damage, cs, level, win, wards, order, lane, role, items, trinket, spells, keystone, killParticipation, damageContribution, badges\", function () {",
+									"    const responseData = pm.response.json().players",
+									"",
+									"    pm.expect(responseData).to.be.an('array');",
+									"    const playerEntryResponse = responseData[0]",
+									"    pm.expect(playerEntryResponse.id).to.be.an('string');",
+									"    pm.expect(playerEntryResponse.name).to.be.an('string');",
+									"    pm.expect(playerEntryResponse.rank).to.be.an('string');",
+									"    pm.expect(playerEntryResponse.participantId).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.teamId).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.champId).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.champName).to.be.an('string');",
+									"    pm.expect(playerEntryResponse.kills).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.deaths).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.assists).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.gold).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.damage).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.cs).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.level).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.win).to.be.an('boolean');",
+									"    pm.expect(playerEntryResponse.wards).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.order).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.lane).to.be.an('string');",
+									"    pm.expect(playerEntryResponse.role).to.be.an('string');",
+									"    pm.expect(playerEntryResponse.items).to.be.an('array');",
+									"    pm.expect(playerEntryResponse.items[0].id).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.items[0].name).to.be.an('string');",
+									"    pm.expect(playerEntryResponse.items[0].desc).to.be.an('string');",
+									"    pm.expect(playerEntryResponse.trinket).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.spells).to.be.an('array');",
+									"    pm.expect(playerEntryResponse.spells[0]).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.keystone).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.killParticipation).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.damageContribution).to.be.an('number');",
+									"    pm.expect(playerEntryResponse.badges).to.be.an('array');",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseURL}}/api/v4/matches/{{matchId}}?summonerId={{summonerId}}&region={{region}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"v4",
+								"matches",
+								"{{matchId}}"
+							],
+							"query": [
+								{
+									"key": "summonerId",
+									"value": "{{summonerId}}"
+								},
+								{
+									"key": "region",
+									"value": "{{region}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "summonerName",
+			"value": "Erelor",
+			"type": "string"
+		},
+		{
+			"key": "region",
+			"value": "na",
+			"type": "string"
+		},
+		{
+			"key": "summonerId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "matchId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
