@@ -19,7 +19,7 @@ class TestCachingClient {
 
     @Test
     fun testCachingClient() {
-        val baseClient = TestClient(summonerResponse = SummonerResponse("id", "na", "erelor", 69, 420)).withCaching(cacheProperties)
+        val baseClient = TestClient(summonerResponse = SummonerResponse("id", "na", "erelor", 69, 420))
         val cachingClient = baseClient.withCaching(cacheProperties)
         Assertions.assertEquals(baseClient.getSummoner("erelor"), cachingClient.getSummoner("erelor"))
     }
