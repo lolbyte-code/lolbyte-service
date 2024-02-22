@@ -28,7 +28,7 @@ class CurrentGameHandlerTest {
 
     @Test
     fun testGetCurrentGame() {
-        val response = handler.getCurrentGame("123")
+        val response = handler.getCurrentGame("123", false)
         Assertions.assertEquals(testResponse, response)
     }
 }

@@ -44,11 +44,11 @@ open class TestClient(
         return champMapping?.get(id) ?: Assertions.fail("No champMapping provided for $id")
     }
 
-    override fun getCurrentGame(id: String): CurrentGameResponse {
+    override fun getCurrentGame(id: String, useRiotIds: Boolean): CurrentGameResponse {
         return currentGameResponse ?: Assertions.fail("No currentGameResponse provided")
     }
 
-    override fun getMatch(id: Long, summonerId: String): MatchResponse {
+    override fun getMatch(id: Long, summonerId: String, useRiotIds: Boolean): MatchResponse {
         return matchResponse ?: Assertions.fail("No matchResponse provided")
     }
 }

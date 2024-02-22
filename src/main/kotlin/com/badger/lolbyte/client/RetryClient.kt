@@ -56,14 +56,14 @@ private class RetryClient(private val client: LeagueApiClient, private val retri
             return "Unknown"
         }
     }
-    override fun getCurrentGame(id: String): CurrentGameResponse {
+    override fun getCurrentGame(id: String, useRiotIds: Boolean): CurrentGameResponse {
         return try {
-            retrier.withRetry { client.getCurrentGame(id) }
+            retrier.withRetry { client.getCurrentGame(id, useRiotIds) }
         } catch (e: NullPointerException) {
             throw NotFoundException
         }
     }
-    override fun getMatch(id: Long, summonerId: String): MatchResponse = retrier.withRetry { client.getMatch(id, summonerId) }
+    override fun getMatch(id: Long, summonerId: String, useRiotIds: Boolean): MatchResponse = retrier.withRetry { client.getMatch(id, summonerId, useRiotIds) }
 }
 
 fun LeagueApiClient.withRetry(retryProperties: RetryProperties): LeagueApiClient {

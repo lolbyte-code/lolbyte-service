@@ -16,6 +16,6 @@ interface LeagueApiClient {
     fun getRanks(id: String): List<RankResponse>
     fun getTopChamps(id: String, limit: Int): TopChampsResponse
     fun getChampName(id: Int): String
-    fun getCurrentGame(id: String): CurrentGameResponse
-    fun getMatch(id: Long, summonerId: String): MatchResponse
+    fun getCurrentGame(id: String, useRiotIds: Boolean): CurrentGameResponse
+    fun getMatch(id: Long, summonerId: String, useRiotIds: Boolean): MatchResponse
 }

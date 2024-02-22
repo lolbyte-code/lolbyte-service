@@ -27,6 +27,7 @@ import no.stelar7.api.r4j.impl.R4J.LOLAPI
 import no.stelar7.api.r4j.impl.R4J.TFTAPI
 import no.stelar7.api.r4j.impl.lol.builders.matchv5.match.MatchBuilder
 import no.stelar7.api.r4j.impl.lol.raw.DDragonAPI
+import no.stelar7.api.r4j.impl.shared.AccountAPI
 import no.stelar7.api.r4j.pojo.lol.match.v5.MatchParticipant
 import no.stelar7.api.r4j.pojo.lol.summoner.Summoner
 import java.util.stream.Collectors
@@ -35,6 +36,7 @@ import com.badger.lolbyte.current.SummonerResponse as CurrentGameSummonerRespons
 class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     private val leagueAPI: LOLAPI
     private val tftAPI: TFTAPI
+    private val accountAPI: AccountAPI
     private val dDragonAPI: DDragonAPI
     private var leagueShard = LeagueShard.NA1
 
@@ -42,11 +44,12 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     private val champs = Cache.buildCache<Int, String>(Cache.eternalTtl)
 
     init {
-        val credentials = APICredentials(leagueApiKey, "", tftApiKey, "", "")
+        val credentials = APICredentials(leagueApiKey, "", tftApiKey, "", leagueApiKey)
         // Do not change the cache provider
         val r4J = R4J(credentials)
         leagueAPI = r4J.loLAPI
         tftAPI = r4J.tftapi
+        accountAPI = r4J.accountAPI
         dDragonAPI = r4J.dDragonAPI
 
         dDragonAPI.items.forEach {
@@ -76,8 +79,16 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     }
 
     override fun getSummoner(name: String): SummonerResponse {
-        val summoner = leagueAPI.summonerAPI.getSummonerByName(leagueShard, name)
-        return getSummoner(summoner)
+        return if (name.contains("#")) {
+            val (gameName, tag) = name.split("#")
+            val account = accountAPI.getAccountByTag(leagueShard.toRegionShard(), gameName, tag)
+            val summoner = leagueAPI.summonerAPI.getSummonerByPUUID(leagueShard, account.puuid)
+            getSummoner(summoner, nameOverride = "${account.name}#${account.tag}")
+        } else {
+            // TODO: This will be deprecated and needs to be removed once all clients update!
+            val summoner = leagueAPI.summonerAPI.getSummonerByName(leagueShard, name)
+            return getSummoner(summoner)
+        }
     }
 
     override fun getSummonerById(id: String): SummonerResponse {
@@ -85,11 +96,11 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
         return getSummoner(summoner)
     }
 
-    private fun getSummoner(summoner: Summoner): SummonerResponse {
+    private fun getSummoner(summoner: Summoner, nameOverride: String? = null): SummonerResponse {
         return SummonerResponse(
             id = summoner.summonerId,
             region = leagueShard.realmValue,
-            name = summoner.name,
+            name = nameOverride ?: summoner.name,
             level = summoner.summonerLevel,
             icon = summoner.profileIconId,
         )
@@ -251,7 +262,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
         }
     }
 
-    override fun getCurrentGame(id: String): CurrentGameResponse {
+    override fun getCurrentGame(id: String, useRiotIds: Boolean): CurrentGameResponse {
         val summoner = leagueAPI.summonerAPI.getSummonerById(leagueShard, id)
         if (summoner.currentGame == null) throw NotFoundException
         val summoners = summoner.currentGame.participants.map { participant ->
@@ -262,8 +273,15 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
             val entry = entries.firstOrNull {
                 it.queueType == summoner.currentGame.gameQueueConfig
             } ?: rankedEntry
+            val name = if (useRiotIds) {
+                val puuid = leagueAPI.summonerAPI.getSummonerById(leagueShard, participant.summonerId).puuid
+                val account = accountAPI.getAccountByPUUID(leagueShard.toRegionShard(), puuid)
+                "${account.name}#${account.tag}"
+            } else {
+                participant.summonerName
+            }
             CurrentGameSummonerResponse(
-                name = participant.summonerName,
+                name = name,
                 selected = participant.summonerId == id,
                 tier = entry?.tier?.toLowerCase() ?: "unranked",
                 division = entry?.rank ?: "",
@@ -275,7 +293,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
         return CurrentGameResponse(Queue.getTag(queueId), summoners)
     }
 
-    override fun getMatch(id: Long, summonerId: String): MatchResponse {
+    override fun getMatch(id: Long, summonerId: String, useRiotIds: Boolean): MatchResponse {
         val matchBuilder = MatchBuilder(leagueShard)
         val match = matchBuilder.withId("${leagueShard.value}_$id").match
         var blueTeamGold = 0
@@ -323,9 +341,14 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
                 participant.quadraKills > 0 -> badges.add(Badge.QUADRA_KILL)
                 participant.tripleKills > 0 -> badges.add(Badge.TRIPLE_KILL)
             }
+            val name = if (useRiotIds) {
+                "${participant.riotIdName}#${participant.riotIdTagline}"
+            } else {
+                summoner?.name ?: participant.summonerName
+            }
             PlayerResponse(
                 id = summoner?.summonerId ?: participant.summonerId,
-                name = summoner?.name ?: participant.summonerName,
+                name = name,
                 tier = entry?.tier ?: "unranked",
                 division = entry?.tierDivisionType?.division ?: "",
                 participantId = index + 1,
