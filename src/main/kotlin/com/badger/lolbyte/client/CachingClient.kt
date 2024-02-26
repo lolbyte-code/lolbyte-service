@@ -20,7 +20,7 @@ private class CachingClient(
     val ranks = Cache.buildCache<String, List<RankResponse>>(cacheProperties.ranksTtl)
     val topChamps = Cache.buildCache<String, TopChampsResponse>(cacheProperties.topChampsTtl)
     val champById = Cache.buildCache<Int, String>(cacheProperties.champTtl)
-//    val match = Cache.buildCache<String, MatchResponse>(cacheProperties.matchTtl)
+    val match = Cache.buildCache<String, MatchResponse>(cacheProperties.matchTtl)
 
     override fun setRegion(region: Region) {
         client.setRegion(region)
@@ -67,7 +67,9 @@ private class CachingClient(
     }
 
     override fun getMatch(id: Long, summonerId: String, useRiotIds: Boolean): MatchResponse {
-        return client.getMatch(id, summonerId, useRiotIds)
+        return match.computeIfAbsent("$id$summonerId") {
+            client.getMatch(id, summonerId, useRiotIds)
+        }
     }
 }
 
