@@ -341,7 +341,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
                 participant.quadraKills > 0 -> badges.add(Badge.QUADRA_KILL)
                 participant.tripleKills > 0 -> badges.add(Badge.TRIPLE_KILL)
             }
-            val name = if (useRiotIds) {
+            val name = if (useRiotIds && participant.riotIdName.isNotEmpty()) {
                 "${participant.riotIdName}#${participant.riotIdTagline}"
             } else {
                 summoner?.name ?: participant.summonerName
