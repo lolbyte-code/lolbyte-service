@@ -18,7 +18,6 @@ import com.badger.lolbyte.utils.LolByteUtils
 import com.badger.lolbyte.utils.Queue
 import com.badger.lolbyte.utils.Region
 import no.stelar7.api.r4j.basic.APICredentials
-import no.stelar7.api.r4j.basic.calling.DataCall
 import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard
 import no.stelar7.api.r4j.basic.constants.types.lol.GameModeType
 import no.stelar7.api.r4j.basic.constants.types.lol.GameQueueType
@@ -62,16 +61,6 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
 
         dDragonAPI.champions.forEach {
             champs.put(it.key, it.value.name)
-        }
-    }
-
-    // Super sketchy but maybe works?
-    private fun <T> withTftCredentials(block: () -> T): T {
-        return try {
-            DataCall.setCredentials(tftCreds)
-            block()
-        } finally {
-            DataCall.setCredentials(leagueCreds)
         }
     }
 
@@ -178,37 +167,13 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
 
     override fun getRanks(id: String): List<RankResponse> {
         val leagueRanks = getLeagueRanks(id)
-        // Ids are specific to API key
-        val puuid = leagueAPI.summonerAPI.getSummonerById(leagueShard, id).puuid
-        val account = accountAPI.getAccountByPUUID(leagueShard.toRegionShard(), puuid)
-        val tftRanks = withTftCredentials {
-            getTFTRanks(account.name, account.tag)
-        }
+        // TODO make this work, see git history
+        val tftRanks = emptyList<RankResponse>()
         return if (leagueRanks.first().tier == "unranked" && tftRanks.isNotEmpty()) {
             tftRanks
         } else {
             (leagueRanks + tftRanks).sortedByDescending { it.score }
         }
-    }
-
-    private fun getTFTRanks(name: String, tag: String): List<RankResponse> {
-        return emptyList()
-//        val puuid = accountAPI.getAccountByTag(leagueShard.toRegionShard(), name, tag).puuid
-//        val summoner = tftAPI.summonerAPI.getSummonerByPUUID(leagueShard, puuid)
-//        val leagueEntries = tftAPI.leagueAPI.getLeagueEntries(leagueShard, summoner.summonerId)
-//        return leagueEntries.filter { it.ratedTier == null }.map { entry ->
-//            val queueId = entry.queueType.values.firstOrNull() ?: Queue.RANKED_TFT.id
-//            RankResponse(
-//                tier = entry.tier.toLowerCase(),
-//                division = entry.rank,
-//                points = entry.leaguePoints,
-//                series = "",
-//                wins = entry.wins,
-//                leagueName = "",
-//                queueName = Queue.getTag(queueId),
-//                queueId = queueId,
-//            )
-//        }
     }
 
     private fun getLeagueRanks(id: String): List<RankResponse> {
