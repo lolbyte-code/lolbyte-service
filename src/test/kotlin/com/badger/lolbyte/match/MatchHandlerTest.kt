@@ -67,7 +67,7 @@ class MatchHandlerTest {
 
     @Test
     fun testGetMatch() {
-        val response = handler.getMatch(123, "456", false)
+        val response = handler.getMatch(123, "456")
         Assertions.assertEquals(testResponse, response)
     }
 }

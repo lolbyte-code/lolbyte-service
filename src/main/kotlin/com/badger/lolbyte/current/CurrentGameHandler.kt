@@ -26,7 +26,7 @@ data class SummonerResponse(
 }
 
 class CurrentGameHandler(private val client: LeagueApiClient) {
-    fun getCurrentGame(id: String, useRiotIds: Boolean): CurrentGameResponse {
-        return client.getCurrentGame(id, useRiotIds)
+    fun getCurrentGame(id: String): CurrentGameResponse {
+        return client.getCurrentGame(id)
     }
 }

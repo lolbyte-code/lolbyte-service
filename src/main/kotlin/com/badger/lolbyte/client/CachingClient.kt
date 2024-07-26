@@ -62,13 +62,13 @@ private class CachingClient(
         }
     }
 
-    override fun getCurrentGame(id: String, useRiotIds: Boolean): CurrentGameResponse {
-        return client.getCurrentGame(id, useRiotIds)
+    override fun getCurrentGame(id: String): CurrentGameResponse {
+        return client.getCurrentGame(id)
     }
 
-    override fun getMatch(id: Long, summonerId: String, useRiotIds: Boolean): MatchResponse {
+    override fun getMatch(id: Long, summonerId: String): MatchResponse {
         return match.computeIfAbsent("$id$summonerId") {
-            client.getMatch(id, summonerId, useRiotIds)
+            client.getMatch(id, summonerId)
         }
     }
 }

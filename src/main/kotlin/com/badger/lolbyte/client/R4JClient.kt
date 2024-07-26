@@ -18,6 +18,7 @@ import com.badger.lolbyte.utils.LolByteUtils
 import com.badger.lolbyte.utils.Queue
 import com.badger.lolbyte.utils.Region
 import no.stelar7.api.r4j.basic.APICredentials
+import no.stelar7.api.r4j.basic.calling.DataCall
 import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard
 import no.stelar7.api.r4j.basic.constants.types.lol.GameModeType
 import no.stelar7.api.r4j.basic.constants.types.lol.GameQueueType
@@ -38,15 +39,18 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     private val tftAPI: TFTAPI
     private val accountAPI: AccountAPI
     private val dDragonAPI: DDragonAPI
+    private val leagueCreds: APICredentials
+    private val tftCreds: APICredentials
     private var leagueShard = LeagueShard.NA1
 
     private val items = Cache.buildCache<Int, ItemResponse>(Cache.eternalTtl)
     private val champs = Cache.buildCache<Int, String>(Cache.eternalTtl)
 
     init {
-        val credentials = APICredentials(leagueApiKey, "", tftApiKey, "", leagueApiKey)
+        leagueCreds = APICredentials(leagueApiKey, "", tftApiKey, "", leagueApiKey)
+        tftCreds = APICredentials(tftApiKey, "", tftApiKey, "", tftApiKey)
         // Do not change the cache provider
-        val r4J = R4J(credentials)
+        val r4J = R4J(leagueCreds)
         leagueAPI = r4J.loLAPI
         tftAPI = r4J.tftapi
         accountAPI = r4J.accountAPI
@@ -58,6 +62,16 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
 
         dDragonAPI.champions.forEach {
             champs.put(it.key, it.value.name)
+        }
+    }
+
+    // Super sketchy but maybe works?
+    private fun <T> withTftCredentials(block: () -> T): T {
+        return try {
+            DataCall.setCredentials(tftCreds)
+            block()
+        } finally {
+            DataCall.setCredentials(leagueCreds)
         }
     }
 
@@ -85,9 +99,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
             val summoner = leagueAPI.summonerAPI.getSummonerByPUUID(leagueShard, account.puuid)
             getSummoner(summoner, nameOverride = "${account.name}#${account.tag}")
         } else {
-            // TODO: This will be deprecated and needs to be removed once all clients update!
-            val summoner = leagueAPI.summonerAPI.getSummonerByName(leagueShard, name)
-            return getSummoner(summoner)
+            throw NotFoundException
         }
     }
 
@@ -167,8 +179,11 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     override fun getRanks(id: String): List<RankResponse> {
         val leagueRanks = getLeagueRanks(id)
         // Ids are specific to API key
-        val name = getSummonerById(id).name
-        val tftRanks = getTFTRanks(name)
+        val puuid = leagueAPI.summonerAPI.getSummonerById(leagueShard, id).puuid
+        val account = accountAPI.getAccountByPUUID(leagueShard.toRegionShard(), puuid)
+        val tftRanks = withTftCredentials {
+            getTFTRanks(account.name, account.tag)
+        }
         return if (leagueRanks.first().tier == "unranked" && tftRanks.isNotEmpty()) {
             tftRanks
         } else {
@@ -176,8 +191,9 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
         }
     }
 
-    private fun getTFTRanks(name: String): List<RankResponse> {
-        val summoner = tftAPI.summonerAPI.getSummonerByName(leagueShard, name)
+    private fun getTFTRanks(name: String, tag: String): List<RankResponse> {
+        val puuid = accountAPI.getAccountByTag(leagueShard.toRegionShard(), name, tag).puuid
+        val summoner = tftAPI.summonerAPI.getSummonerByPUUID(leagueShard, puuid)
         val leagueEntries = tftAPI.leagueAPI.getLeagueEntries(leagueShard, summoner.summonerId)
         return leagueEntries.filter { it.ratedTier == null }.map { entry ->
             val queueId = entry.queueType.values.firstOrNull() ?: Queue.RANKED_TFT.id
@@ -262,7 +278,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
         }
     }
 
-    override fun getCurrentGame(id: String, useRiotIds: Boolean): CurrentGameResponse {
+    override fun getCurrentGame(id: String): CurrentGameResponse {
         val summoner = leagueAPI.summonerAPI.getSummonerById(leagueShard, id)
         if (summoner.currentGame == null) throw NotFoundException
         val summoners = summoner.currentGame.participants.map { participant ->
@@ -273,13 +289,9 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
             val entry = entries.firstOrNull {
                 it.queueType == summoner.currentGame.gameQueueConfig
             } ?: rankedEntry
-            val name = if (useRiotIds) {
-                val puuid = leagueAPI.summonerAPI.getSummonerById(leagueShard, participant.summonerId).puuid
-                val account = accountAPI.getAccountByPUUID(leagueShard.toRegionShard(), puuid)
-                "${account.name}#${account.tag}"
-            } else {
-                participant.summonerName
-            }
+            val puuid = leagueAPI.summonerAPI.getSummonerById(leagueShard, participant.summonerId).puuid
+            val account = accountAPI.getAccountByPUUID(leagueShard.toRegionShard(), puuid)
+            val name = "${account.name}#${account.tag}"
             CurrentGameSummonerResponse(
                 name = name,
                 selected = participant.summonerId == id,
@@ -293,7 +305,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
         return CurrentGameResponse(Queue.getTag(queueId), summoners)
     }
 
-    override fun getMatch(id: Long, summonerId: String, useRiotIds: Boolean): MatchResponse {
+    override fun getMatch(id: Long, summonerId: String): MatchResponse {
         val matchBuilder = MatchBuilder(leagueShard)
         val match = matchBuilder.withId("${leagueShard.value}_$id").match
         var blueTeamGold = 0
@@ -341,11 +353,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
                 participant.quadraKills > 0 -> badges.add(Badge.QUADRA_KILL)
                 participant.tripleKills > 0 -> badges.add(Badge.TRIPLE_KILL)
             }
-            val name = if (useRiotIds && participant.riotIdName.isNotEmpty()) {
-                "${participant.riotIdName}#${participant.riotIdTagline}"
-            } else {
-                summoner?.name ?: participant.summonerName
-            }
+            val name = "${participant.riotIdName}#${participant.riotIdTagline}"
             PlayerResponse(
                 id = summoner?.summonerId ?: participant.summonerId,
                 name = name,

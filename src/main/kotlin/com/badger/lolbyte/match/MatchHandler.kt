@@ -128,7 +128,7 @@ data class TeamResponse(
 )
 
 class MatchHandler(private val client: LeagueApiClient) {
-    fun getMatch(id: Long, summonerId: String, useRiotIds: Boolean): MatchResponse {
-        return client.getMatch(id, summonerId, useRiotIds)
+    fun getMatch(id: Long, summonerId: String): MatchResponse {
+        return client.getMatch(id, summonerId)
     }
 }

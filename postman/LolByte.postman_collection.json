@@ -75,7 +75,7 @@
 									"    pm.expect(responseData.id).to.match(/^[A-z0-9_-]{47}$/);",
 									"    pm.variables.set(\"summonerId\", responseData.id)",
 									"    pm.expect(responseData.region).is.to.equal(pm.variables.get(\"region\"));",
-									"    pm.expect(responseData.name).is.to.equal(pm.variables.get(\"summonerName\"));",
+									"    pm.expect(responseData.name).is.to.equal(decodeURIComponent(pm.variables.get(\"summonerName\")));",
 									"    pm.expect(responseData.level).to.be.an('number');",
 									"    pm.expect(responseData.icon).to.be.an('number');",
 									"});",
@@ -545,7 +545,7 @@
 		},
 		{
 			"key": "summonerName",
-			"value": "Erelor",
+			"value": "Erelor%23NA1",
 			"type": "string"
 		},
 		{

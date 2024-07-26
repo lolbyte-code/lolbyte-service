@@ -101,10 +101,9 @@ class ApiV4Controller(
     fun getCurrentGame(
         @PathVariable id: String,
         @RequestParam(name = "region", required = false) region: String?,
-        @RequestParam(name = "useRiotIds", required = false) useRiotIds: Boolean?,
     ): CurrentGameResponse {
         client.setRegion(Region.fromString(region))
-        return CurrentGameHandler(client).getCurrentGame(id, useRiotIds ?: false)
+        return CurrentGameHandler(client).getCurrentGame(id)
     }
 
     @GetMapping("/matches/{id}")
@@ -112,9 +111,8 @@ class ApiV4Controller(
         @PathVariable id: Long,
         @RequestParam(name = "summonerId") summonerId: String,
         @RequestParam(name = "region", required = false) region: String?,
-        @RequestParam(name = "useRiotIds", required = false) useRiotIds: Boolean?,
     ): MatchResponse {
         client.setRegion(Region.fromString(region))
-        return MatchHandler(client).getMatch(id, summonerId, useRiotIds ?: false)
+        return MatchHandler(client).getMatch(id, summonerId)
     }
 }
