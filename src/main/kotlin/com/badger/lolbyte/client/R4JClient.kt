@@ -192,22 +192,23 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     }
 
     private fun getTFTRanks(name: String, tag: String): List<RankResponse> {
-        val puuid = accountAPI.getAccountByTag(leagueShard.toRegionShard(), name, tag).puuid
-        val summoner = tftAPI.summonerAPI.getSummonerByPUUID(leagueShard, puuid)
-        val leagueEntries = tftAPI.leagueAPI.getLeagueEntries(leagueShard, summoner.summonerId)
-        return leagueEntries.filter { it.ratedTier == null }.map { entry ->
-            val queueId = entry.queueType.values.firstOrNull() ?: Queue.RANKED_TFT.id
-            RankResponse(
-                tier = entry.tier.toLowerCase(),
-                division = entry.rank,
-                points = entry.leaguePoints,
-                series = "",
-                wins = entry.wins,
-                leagueName = "",
-                queueName = Queue.getTag(queueId),
-                queueId = queueId,
-            )
-        }
+        return emptyList()
+//        val puuid = accountAPI.getAccountByTag(leagueShard.toRegionShard(), name, tag).puuid
+//        val summoner = tftAPI.summonerAPI.getSummonerByPUUID(leagueShard, puuid)
+//        val leagueEntries = tftAPI.leagueAPI.getLeagueEntries(leagueShard, summoner.summonerId)
+//        return leagueEntries.filter { it.ratedTier == null }.map { entry ->
+//            val queueId = entry.queueType.values.firstOrNull() ?: Queue.RANKED_TFT.id
+//            RankResponse(
+//                tier = entry.tier.toLowerCase(),
+//                division = entry.rank,
+//                points = entry.leaguePoints,
+//                series = "",
+//                wins = entry.wins,
+//                leagueName = "",
+//                queueName = Queue.getTag(queueId),
+//                queueId = queueId,
+//            )
+//        }
     }
 
     private fun getLeagueRanks(id: String): List<RankResponse> {
