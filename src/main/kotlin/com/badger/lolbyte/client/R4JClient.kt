@@ -80,14 +80,15 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     }
 
     override fun getSummoner(name: String): SummonerResponse {
-        return if (name.contains("#")) {
-            val (gameName, tag) = name.split("#")
-            val account = accountAPI.getAccountByTag(leagueShard.toRegionShard(), gameName, tag)
-            val summoner = leagueAPI.summonerAPI.getSummonerByPUUID(leagueShard, account.puuid)
-            getSummoner(summoner, nameOverride = "${account.name}#${account.tag}")
+        val nameWithTag = if (name.contains("#")) {
+            name
         } else {
-            throw NotFoundException
+            "$name#${leagueShard.value}"
         }
+        val (gameName, tag) = nameWithTag.split("#")
+        val account = accountAPI.getAccountByTag(leagueShard.toRegionShard(), gameName, tag)
+        val summoner = leagueAPI.summonerAPI.getSummonerByPUUID(leagueShard, account.puuid)
+        return getSummoner(summoner, nameOverride = "${account.name}#${account.tag}")
     }
 
     override fun getSummonerById(id: String): SummonerResponse {
