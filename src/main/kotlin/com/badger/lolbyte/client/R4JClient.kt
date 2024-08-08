@@ -1,6 +1,5 @@
 package com.badger.lolbyte.client
 
-import com.badger.lolbyte.BadRequestException
 import com.badger.lolbyte.NotFoundException
 import com.badger.lolbyte.current.CurrentGameResponse
 import com.badger.lolbyte.match.Badge
@@ -20,7 +19,6 @@ import com.badger.lolbyte.utils.Region
 import no.stelar7.api.r4j.basic.APICredentials
 import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard
 import no.stelar7.api.r4j.basic.constants.types.ApiKeyType
-import no.stelar7.api.r4j.basic.constants.types.lol.GameModeType
 import no.stelar7.api.r4j.basic.constants.types.lol.GameQueueType
 import no.stelar7.api.r4j.basic.constants.types.lol.TeamType
 import no.stelar7.api.r4j.impl.R4J
@@ -107,16 +105,23 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     }
 
     override fun getRecentGames(id: String, limit: Int, queueId: Int?): List<RecentGameResponse> {
-        val skippedGameTypes = setOf(GameModeType.PRACTICETOOL, GameModeType.CHERRY, GameModeType.STRAWBERRY)
         val regionShard = leagueShard.toRegionShard()
         val puuid = leagueAPI.summonerAPI.getSummonerById(leagueShard, id).puuid
-        val queue = if (queueId != null && queueId != 0) getQueue(queueId) ?: throw BadRequestException("Invalid queueId $queueId") else null
-        val matchList = leagueAPI.matchAPI.getMatchList(regionShard, puuid, queue, null, null, limit, null, null)
-        // Matches with valid match ids can be null (Riot API bug).
-        return matchList.filterNotNull().parallelStream().map { matchId ->
+
+        val gameQueueTypes = when (queueId) {
+            420 -> rankedGameQueueTypes
+            700 -> clashGameQueueTypes
+            else -> defaultGameQueueTypes
+        }
+
+        val fullMatchList = gameQueueTypes.flatMap {
+            leagueAPI.matchAPI.getMatchList(regionShard, puuid, it, null, null, limit, null, null)
+        }
+
+        return getFirstNMatches(fullMatchList, limit).parallelStream().map { matchId ->
             leagueAPI.matchAPI.getMatch(regionShard, matchId)
         }.filter {
-            it.gameCreation != 0L && !skippedGameTypes.contains(it.gameMode)
+            it.gameCreation != 0L
         }.map { match ->
             val participant = match.participants.first { it.puuid == puuid }
             val items = getItems(participant)
@@ -143,10 +148,10 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
         }.collect(Collectors.toList())
     }
 
-    private fun getQueue(queueId: Int): GameQueueType? {
-        return GameQueueType.values().firstOrNull { queue ->
-            queueId in queue.values
-        }
+    // Match IDs are monotonically increasing, so we can get the last X matches by sorting on the ID.
+    private fun getFirstNMatches(matchList: List<String?>, limit: Int): List<String> {
+        // Matches with valid match ids can be null (Riot API bug).
+        return matchList.filterNotNull().sortedBy { it.split('_').last().toLong() }.take(limit)
     }
 
     private fun getItems(participant: MatchParticipant): List<ItemResponse> {
@@ -429,5 +434,11 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
             redTeam = redTeam,
             players = players.sortedBy { it.order },
         )
+    }
+
+    companion object {
+        private val defaultGameQueueTypes = listOf(GameQueueType.TEAM_BUILDER_DRAFT_UNRANKED_5X5, GameQueueType.RANKED_SOLO_5X5, GameQueueType.RANKED_FLEX_SR)
+        private val rankedGameQueueTypes = listOf(GameQueueType.RANKED_SOLO_5X5, GameQueueType.RANKED_FLEX_SR)
+        private val clashGameQueueTypes = listOf(GameQueueType.CLASH)
     }
 }
