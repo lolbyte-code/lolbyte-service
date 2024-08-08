@@ -151,7 +151,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     // Match IDs are monotonically increasing, so we can get the last X matches by sorting on the ID.
     private fun getFirstNMatches(matchList: List<String?>, limit: Int): List<String> {
         // Matches with valid match ids can be null (Riot API bug).
-        return matchList.filterNotNull().sortedBy { it.split('_').last().toLong() }.take(limit)
+        return matchList.filterNotNull().sortedByDescending { it.split('_').last().toLong() }.take(limit)
     }
 
     private fun getItems(participant: MatchParticipant): List<ItemResponse> {
@@ -437,8 +437,13 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     }
 
     companion object {
-        private val defaultGameQueueTypes = listOf(GameQueueType.TEAM_BUILDER_DRAFT_UNRANKED_5X5, GameQueueType.RANKED_SOLO_5X5, GameQueueType.RANKED_FLEX_SR)
-        private val rankedGameQueueTypes = listOf(GameQueueType.RANKED_SOLO_5X5, GameQueueType.RANKED_FLEX_SR)
+        private val defaultGameQueueTypes = listOf(
+            GameQueueType.TEAM_BUILDER_DRAFT_UNRANKED_5X5,
+            GameQueueType.TEAM_BUILDER_RANKED_SOLO,
+            GameQueueType.RANKED_FLEX_SR,
+            GameQueueType.ARAM
+        )
+        private val rankedGameQueueTypes = listOf(GameQueueType.TEAM_BUILDER_RANKED_SOLO, GameQueueType.RANKED_FLEX_SR)
         private val clashGameQueueTypes = listOf(GameQueueType.CLASH)
     }
 }
