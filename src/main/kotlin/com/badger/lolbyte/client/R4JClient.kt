@@ -183,7 +183,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     }
 
     private fun getTFTRanks(name: String, tag: String): List<RankResponse> {
-        val puuid = accountAPI.getAccountByTag(leagueShard.toRegionShard(), name, tag, ApiKeyType.TFT).puuid
+        val puuid = accountAPI.getAccountByTag(leagueShard.toRegionShard(), name, tag, ApiKeyType.TFT)?.puuid ?: return emptyList()
         val summoner = tftAPI.summonerAPI.getSummonerByPUUID(leagueShard, puuid)
         val leagueEntries = tftAPI.leagueAPI.getLeagueEntries(leagueShard, summoner.summonerId)
         return leagueEntries.filter { it.ratedTier == null }.map { entry ->
