@@ -72,7 +72,7 @@
 									"    const responseData = pm.response.json();",
 									"",
 									"    pm.expect(responseData).to.be.an('object');",
-									"    pm.expect(responseData.id).to.match(/^[A-z0-9_-]{47}$/);",
+									"    pm.expect(responseData.id).to.match(/^[A-z0-9_-]{78}$/);",
 									"    pm.variables.set(\"summonerId\", responseData.id)",
 									"    pm.expect(responseData.region).is.to.equal(pm.variables.get(\"region\"));",
 									"    pm.expect(responseData.name).is.to.equal(pm.variables.get(\"summonerName\") + \"#NA1\");",
@@ -374,7 +374,7 @@
 									"    pm.expect(responseData.timestamp).to.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}\\+\\d{2}:\\d{2}$/);",
 									"    pm.expect(responseData.status).to.exist;",
 									"    pm.expect(responseData.error).is.to.equal(\"Not Found\");",
-									"    pm.expect(responseData.path).to.match(/^\\/api\\/v4\\/current\\/[A-z0-9_-]{47}$/);",
+									"    pm.expect(responseData.path).to.match(/^\\/api\\/v4\\/current\\/[A-z0-9_-]{78}$/);",
 									"});",
 									""
 								],

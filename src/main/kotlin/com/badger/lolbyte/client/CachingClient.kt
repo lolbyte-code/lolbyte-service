@@ -15,7 +15,6 @@ private class CachingClient(
     cacheProperties: CacheProperties
 ) : LeagueApiClient {
     val summonerByName = Cache.buildCache<String, SummonerResponse>(cacheProperties.summonerTtl)
-    val summonerById = Cache.buildCache<String, SummonerResponse>(cacheProperties.summonerTtl)
     val recentGames = Cache.buildCache<String, List<RecentGameResponse>>(cacheProperties.recentGamesTtl)
     val ranks = Cache.buildCache<String, List<RankResponse>>(cacheProperties.ranksTtl)
     val topChamps = Cache.buildCache<String, TopChampsResponse>(cacheProperties.topChampsTtl)
@@ -29,12 +28,6 @@ private class CachingClient(
     override fun getSummoner(name: String): SummonerResponse {
         return summonerByName.computeIfAbsent(name) {
             client.getSummoner(name)
-        }
-    }
-
-    override fun getSummonerById(id: String): SummonerResponse {
-        return summonerById.computeIfAbsent(id) {
-            client.getSummoner(id)
         }
     }
 
@@ -66,9 +59,9 @@ private class CachingClient(
         return client.getCurrentGame(id)
     }
 
-    override fun getMatch(id: Long, summonerId: String): MatchResponse {
-        return match.computeIfAbsent("$id$summonerId") {
-            client.getMatch(id, summonerId)
+    override fun getMatch(id: Long): MatchResponse {
+        return match.computeIfAbsent("$id") {
+            client.getMatch(id)
         }
     }
 }

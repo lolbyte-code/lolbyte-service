@@ -24,10 +24,6 @@ open class TestClient(
         return summonerResponse ?: Assertions.fail("No summonerResponse provided")
     }
 
-    override fun getSummonerById(id: String): SummonerResponse {
-        return summonerResponse ?: Assertions.fail("No summonerResponse provided")
-    }
-
     override fun getRecentGames(id: String, limit: Int, queueId: Int?): List<RecentGameResponse> {
         return recentGamesResponse ?: Assertions.fail("No recentGamesResponse provided")
     }
@@ -48,7 +44,7 @@ open class TestClient(
         return currentGameResponse ?: Assertions.fail("No currentGameResponse provided")
     }
 
-    override fun getMatch(id: Long, summonerId: String): MatchResponse {
+    override fun getMatch(id: Long): MatchResponse {
         return matchResponse ?: Assertions.fail("No matchResponse provided")
     }
 }

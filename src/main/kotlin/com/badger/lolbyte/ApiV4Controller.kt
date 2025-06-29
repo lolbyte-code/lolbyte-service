@@ -109,10 +109,9 @@ class ApiV4Controller(
     @GetMapping("/matches/{id}")
     fun getMatch(
         @PathVariable id: Long,
-        @RequestParam(name = "summonerId") summonerId: String,
         @RequestParam(name = "region", required = false) region: String?,
     ): MatchResponse {
         client.setRegion(Region.fromString(region))
-        return MatchHandler(client).getMatch(id, summonerId)
+        return MatchHandler(client).getMatch(id)
     }
 }

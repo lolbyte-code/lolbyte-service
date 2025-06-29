@@ -21,13 +21,6 @@ private class RetryClient(private val client: LeagueApiClient, private val retri
             throw NotFoundException
         }
     }
-    override fun getSummonerById(id: String): SummonerResponse {
-        return try {
-            retrier.withRetry { client.getSummonerById(id) }
-        } catch (e: NullPointerException) {
-            throw NotFoundException
-        }
-    }
     override fun getRecentGames(id: String, limit: Int, queueId: Int?): List<RecentGameResponse> {
         return try {
             retrier.withRetry { client.getRecentGames(id, limit, queueId) }
@@ -63,7 +56,7 @@ private class RetryClient(private val client: LeagueApiClient, private val retri
             throw NotFoundException
         }
     }
-    override fun getMatch(id: Long, summonerId: String): MatchResponse = retrier.withRetry { client.getMatch(id, summonerId) }
+    override fun getMatch(id: Long): MatchResponse = retrier.withRetry { client.getMatch(id) }
 }
 
 fun LeagueApiClient.withRetry(retryProperties: RetryProperties): LeagueApiClient {
