@@ -30,9 +30,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
-@ResponseStatus(code = HttpStatus.BAD_REQUEST)
-class BadRequestException(msg: String) : RuntimeException(msg)
-
 @ResponseStatus(code = HttpStatus.NOT_FOUND)
 object NotFoundException : RuntimeException()
 
