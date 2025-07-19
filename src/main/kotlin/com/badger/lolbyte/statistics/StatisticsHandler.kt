@@ -41,8 +41,8 @@ data class TopChampResponse(
 
 class StatisticsHandler(private val client: LeagueApiClient) {
     fun getStatistics(id: String, limit: Int?, queueId: Int?): StatisticsResponse {
-        val recentGames = client.getRecentGames(id, limit ?: RecentGamesHandler.defaultLimit, queueId)
-        val actualLimit = limit ?: kotlin.math.min(recentGames.size, RecentGamesHandler.defaultLimit)
+        val recentGames = client.getRecentGames(id, limit ?: RecentGamesHandler.DEFAULT_LIMIT, queueId)
+        val actualLimit = limit ?: kotlin.math.min(recentGames.size, RecentGamesHandler.DEFAULT_LIMIT)
         var countWins = 0
         var countKills = 0
         var countDeaths = 0
@@ -67,7 +67,7 @@ class StatisticsHandler(private val client: LeagueApiClient) {
                 // Also when you divide by numbers != 20, you get a lot of decimals so we have to round here.
                 // Might be able to revert this code if R4J / Riot fix invalid match issues causing the count to be
                 // messed up here.
-                winPercentage = (countWins / RecentGamesHandler.defaultLimit.toDouble() * 100).toInt(),
+                winPercentage = (countWins / RecentGamesHandler.DEFAULT_LIMIT.toDouble() * 100).toInt(),
                 kills = (countKills / countGames).round(2),
                 deaths = (countDeaths / countGames).round(2),
                 assists = (countAssists / countGames).round(2),

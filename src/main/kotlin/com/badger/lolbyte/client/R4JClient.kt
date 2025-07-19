@@ -39,8 +39,8 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     private val dDragonAPI: DDragonAPI
     private var leagueShard = LeagueShard.NA1
 
-    private val items = Cache.buildCache<Int, ItemResponse>(Cache.eternalTtl)
-    private val champs = Cache.buildCache<Int, String>(Cache.eternalTtl)
+    private val items = Cache.buildCache<Int, ItemResponse>(Cache.ETERNAL_TTL)
+    private val champs = Cache.buildCache<Int, String>(Cache.ETERNAL_TTL)
 
     init {
         val credentials = APICredentials(leagueApiKey, "", tftApiKey, "", leagueApiKey)

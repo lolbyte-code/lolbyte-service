@@ -14,6 +14,7 @@ import java.lang.NullPointerException
 
 private class RetryClient(private val client: LeagueApiClient, private val retrier: Retrier) : LeagueApiClient {
     override fun setRegion(region: Region) = client.setRegion(region)
+
     override fun getSummoner(name: String): SummonerResponse {
         return try {
             retrier.withRetry { client.getSummoner(name) }
@@ -21,6 +22,7 @@ private class RetryClient(private val client: LeagueApiClient, private val retri
             throw NotFoundException
         }
     }
+
     override fun getRecentGames(id: String, limit: Int, queueId: Int?): List<RecentGameResponse> {
         return try {
             retrier.withRetry { client.getRecentGames(id, limit, queueId) }
@@ -28,6 +30,7 @@ private class RetryClient(private val client: LeagueApiClient, private val retri
             emptyList()
         }
     }
+
     override fun getRanks(id: String): List<RankResponse> {
         return try {
             retrier.withRetry { client.getRanks(id) }
@@ -35,6 +38,7 @@ private class RetryClient(private val client: LeagueApiClient, private val retri
             emptyList()
         }
     }
+
     override fun getTopChamps(id: String, limit: Int): TopChampsResponse {
         return try {
             retrier.withRetry { client.getTopChamps(id, limit) }
@@ -42,6 +46,7 @@ private class RetryClient(private val client: LeagueApiClient, private val retri
             TopChampsResponse(emptyList())
         }
     }
+
     override fun getChampName(id: Int): String {
         return try {
             retrier.withRetry { client.getChampName(id) }
@@ -49,6 +54,7 @@ private class RetryClient(private val client: LeagueApiClient, private val retri
             return "Unknown"
         }
     }
+
     override fun getCurrentGame(id: String): CurrentGameResponse {
         return try {
             retrier.withRetry { client.getCurrentGame(id) }
@@ -56,6 +62,7 @@ private class RetryClient(private val client: LeagueApiClient, private val retri
             throw NotFoundException
         }
     }
+
     override fun getMatch(id: Long): MatchResponse = retrier.withRetry { client.getMatch(id) }
 }
 
