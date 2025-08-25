@@ -11,7 +11,6 @@ class TestCachingClient {
     private val cacheProperties = CacheProperties(
         summonerTtl = 60,
         recentGamesTtl = 60,
-        ranksTtl = 60,
         topChampsTtl = 60,
         champTtl = 60,
         matchTtl = 60
