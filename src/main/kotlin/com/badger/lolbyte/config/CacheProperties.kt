@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 data class CacheProperties(
     val summonerTtl: Long,
     val recentGamesTtl: Long,
+    val ranksTtl: Long,
     val topChampsTtl: Long,
     val champTtl: Long,
     val matchTtl: Long,
