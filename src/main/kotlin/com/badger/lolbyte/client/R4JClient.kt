@@ -17,6 +17,8 @@ import com.badger.lolbyte.utils.LolByteUtils
 import com.badger.lolbyte.utils.Queue
 import com.badger.lolbyte.utils.Region
 import no.stelar7.api.r4j.basic.APICredentials
+import no.stelar7.api.r4j.basic.cache.impl.EmptyCacheProvider
+import no.stelar7.api.r4j.basic.calling.DataCall
 import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard
 import no.stelar7.api.r4j.basic.constants.types.ApiKeyType
 import no.stelar7.api.r4j.basic.constants.types.lol.GameQueueType
@@ -44,8 +46,8 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
 
     init {
         val credentials = APICredentials(leagueApiKey, "", tftApiKey, "", leagueApiKey)
-        // Do not change the cache provider
         val r4J = R4J(credentials)
+        DataCall.setCacheProvider(EmptyCacheProvider.INSTANCE)
         leagueAPI = r4J.loLAPI
         tftAPI = r4J.tftapi
         accountAPI = r4J.accountAPI
