@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="ant.css">
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
+  </head>
+  <body>
+    <div class="content">
+      <h1 style="text-align: center;">Ant Simulator</h1>
+      <p style="text-align: center;"><b>Grid Size:</b> 500x500 Pixels</p>
+      <p id="tracker" style="text-align: center;"><b>Distance Traveled (px):</b> 0</p>
+      <div id ="container">
+        <div id ="ant1" class="ant">
+        </div>
+        <div id ="ant2" class="ant">
+        </div>
+        <div id ="ant3" class="ant">
+        </div>
+        <div id ="ant4" class="ant">
+        </div>
+      </div>
+      <br>
+      <p style="text-align: center;">
+        <button onclick="simulate()" type="button" class="btn btn-primary">Run</button>
+        <button onclick="pause()" type="button" class="btn btn-primary">Pause</button>
+      </p>
+    </div>
+    <script src="ant.js"></script>
+  </body>
+</html>

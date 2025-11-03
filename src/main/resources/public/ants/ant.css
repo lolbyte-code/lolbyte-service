@@ -1,0 +1,27 @@
+.content {
+    max-width: 500px;
+    margin: auto;
+}
+
+#container {
+    width: 500px;
+    height: 500px;
+    background: #E7DFDD;
+    position: relative;
+}
+
+.ant {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: #0E0B16;
+    position: absolute;
+}
+
+.marker {
+    width: 1px;
+    height: 1px;
+    border-radius: 50%;
+    background-color: #A239CA;
+    position: absolute;
+}
