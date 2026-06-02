@@ -16,6 +16,9 @@ import com.badger.lolbyte.utils.Cache
 import com.badger.lolbyte.utils.LolByteUtils
 import com.badger.lolbyte.utils.Queue
 import com.badger.lolbyte.utils.Region
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import no.stelar7.api.r4j.basic.APICredentials
 import no.stelar7.api.r4j.basic.cache.impl.EmptyCacheProvider
 import no.stelar7.api.r4j.basic.calling.DataCall
@@ -31,7 +34,6 @@ import no.stelar7.api.r4j.impl.lol.raw.DDragonAPI
 import no.stelar7.api.r4j.impl.shared.AccountAPI
 import no.stelar7.api.r4j.pojo.lol.match.v5.MatchParticipant
 import no.stelar7.api.r4j.pojo.lol.summoner.Summoner
-import java.util.stream.Collectors
 import com.badger.lolbyte.current.SummonerResponse as CurrentGameSummonerResponse
 
 class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
@@ -110,9 +112,18 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
             leagueAPI.matchAPI.getMatchList(regionShard, id, it, null, null, limit, null, null)
         }
 
-        return getFirstNMatches(fullMatchList, limit).parallelStream().map { matchId ->
-            leagueAPI.matchAPI.getMatch(regionShard, matchId)
-        }.filter {
+        val matchIds = getFirstNMatches(fullMatchList, limit)
+        val matches = runBlocking(Dispatchers.IO) {
+            matchIds.map { matchId ->
+                async {
+                    leagueAPI.matchAPI.getMatch(regionShard, matchId)
+                }
+            }.map { deferred ->
+                deferred.await()
+            }
+        }
+
+        return matches.filter {
             it.gameCreation != 0L
         }.map { match ->
             val participant = match.participants.first { it.puuid == id }
@@ -137,7 +148,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
                 keystone = participant.perks.perkStyles.firstOrNull()?.selections?.firstOrNull()?.perk ?: 0,
                 gameMode = match.gameMode.value,
             )
-        }.collect(Collectors.toList())
+        }
     }
 
     // Match IDs are monotonically increasing, so we can get the last X matches by sorting on the ID.
@@ -215,7 +226,15 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
             } else {
                 ""
             }
-            val leagueName = leagueAPI.leagueAPI.getLeague(leagueShard, entry.leagueId).leagueName
+            val leagueName = if (entry.leagueId != null) {
+                try {
+                    leagueAPI.leagueAPI.getLeague(leagueShard, entry.leagueId)?.leagueName ?: ""
+                } catch (e: Exception) {
+                    ""
+                }
+            } else {
+                ""
+            }
             val queueId = getQueueId(entry.queueType)
             RankResponse(
                 tier = entry.tier.toLowerCase(),

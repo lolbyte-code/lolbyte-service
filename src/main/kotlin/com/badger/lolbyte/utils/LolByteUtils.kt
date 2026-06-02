@@ -10,7 +10,7 @@ object LolByteUtils {
 
     fun computeKda(player: PlayerResponse?): Double {
         if (player == null) return 0.0
-        return player.kills.toDouble() + player.assists.toDouble() / max(player.deaths.toDouble(), 1.0)
+        return (player.kills.toDouble() + player.assists.toDouble()) / max(player.deaths.toDouble(), 1.0)
     }
 
     fun divideInts(numerator: Int, denominator: Int): Int {
