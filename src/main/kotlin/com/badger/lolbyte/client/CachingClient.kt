@@ -32,7 +32,7 @@ private class CachingClient(
     }
 
     override fun getRecentGames(id: String, limit: Int, queueId: Int?): List<RecentGameResponse> {
-        return recentGames.computeIfAbsent("$id$limit$queueId") {
+        return recentGames.computeIfAbsent("$id|$limit|$queueId") {
             client.getRecentGames(id, limit, queueId)
         }
     }
@@ -44,7 +44,7 @@ private class CachingClient(
     }
 
     override fun getTopChamps(id: String, limit: Int): TopChampsResponse {
-        return topChamps.computeIfAbsent("$id$limit") {
+        return topChamps.computeIfAbsent("$id|$limit") {
             client.getTopChamps(id, limit)
         }
     }

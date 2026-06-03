@@ -85,25 +85,20 @@ class StatisticsHandler(private val client: LeagueApiClient) {
             )
         }
 
-        // Some weird issue where champ ids can be invalid in recent games.
-        champs.removeIf {
-            try {
-                client.getChampName(it)
-                false
-            } catch (e: Exception) {
-                true
-            }
+        // Resolve champ names in a single pass — filter out invalid IDs and collect names at the same time.
+        val champNames = champs.associateWith { champId ->
+            try { client.getChampName(champId) } catch (e: Exception) { null }
         }
 
         val mostPlayedChamps = MostPlayedChampsResponse(
-            champs.groupBy { it }.values.sortedByDescending { it.size }.take(3).map { topChamp ->
-                val name = client.getChampName(topChamp.first())
-                MostPlayedChampResponse(
-                    id = topChamp.first(),
-                    name = name,
-                    gamesPlayed = topChamp.size
-                )
-            }
+            champs.filter { champNames[it] != null }
+                .groupBy { it }.values.sortedByDescending { it.size }.take(3).map { topChamp ->
+                    MostPlayedChampResponse(
+                        id = topChamp.first(),
+                        name = champNames[topChamp.first()]!!,
+                        gamesPlayed = topChamp.size
+                    )
+                }
         )
 
         val topChamps = client.getTopChamps(id, 3)

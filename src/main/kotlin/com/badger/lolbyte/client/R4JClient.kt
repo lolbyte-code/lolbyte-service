@@ -41,10 +41,13 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     private val tftAPI: TFTAPI
     private val accountAPI: AccountAPI
     private val dDragonAPI: DDragonAPI
-    private var leagueShard = LeagueShard.NA1
 
     private val items = Cache.buildCache<Int, ItemResponse>(Cache.ETERNAL_TTL)
     private val champs = Cache.buildCache<Int, String>(Cache.ETERNAL_TTL)
+
+    // ThreadLocal so concurrent requests never overwrite each other's region.
+    private val leagueShardLocal = ThreadLocal.withInitial<LeagueShard> { LeagueShard.NA1 }
+    private val leagueShard: LeagueShard get() = leagueShardLocal.get()
 
     init {
         val credentials = APICredentials(leagueApiKey, "", tftApiKey, "", leagueApiKey)
@@ -55,17 +58,17 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
         accountAPI = r4J.accountAPI
         dDragonAPI = r4J.dDragonAPI
 
-        dDragonAPI.items.forEach {
-            items.put(it.key, ItemResponse(it.value.id, it.value.name, it.value.description))
+        dDragonAPI.items.forEach { (key, value) ->
+            items.put(key, ItemResponse(value.id, value.name, value.description))
         }
 
-        dDragonAPI.champions.forEach {
-            champs.put(it.key, it.value.name)
+        dDragonAPI.champions.forEach { (key, value) ->
+            champs.put(key, value.name)
         }
     }
 
     override fun setRegion(region: Region) {
-        val leagueShard = when (region) {
+        val shard = when (region) {
             Region.NORTH_AMERICA -> LeagueShard.NA1
             Region.BRAZIL -> LeagueShard.BR1
             Region.EUROPE_NORTH_EAST -> LeagueShard.EUN1
@@ -78,7 +81,7 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
             Region.RUSSIA -> LeagueShard.RU
             Region.TURKEY -> LeagueShard.TR1
         }
-        this.leagueShard = leagueShard
+        leagueShardLocal.set(shard)
     }
 
     override fun getSummoner(name: String): SummonerResponse {
@@ -108,8 +111,10 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
             else -> defaultGameQueueTypes
         }
 
-        val fullMatchList = gameQueueTypes.flatMap {
-            leagueAPI.matchAPI.getMatchList(regionShard, id, it, null, null, limit, null, null)
+        val fullMatchList = runBlocking(Dispatchers.IO) {
+            gameQueueTypes.map { queueType ->
+                async { leagueAPI.matchAPI.getMatchList(regionShard, id, queueType, null, null, limit, null, null) }
+            }.flatMap { it.await() }
         }
 
         val matchIds = getFirstNMatches(fullMatchList, limit)
@@ -173,10 +178,13 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     }
 
     override fun getRanks(id: String): List<RankResponse> {
-        val leagueRanks = getLeagueRanks(id)
-        // Ids are specific to API key
-        val account = accountAPI.getAccountByPUUID(leagueShard.toRegionShard(), id)
-        val tftRanks = getTFTRanks(account.name, account.tag)
+        // Fetch league ranks and TFT ranks in parallel.
+        val (leagueRanks, tftRanks) = runBlocking(Dispatchers.IO) {
+            val leagueDeferred = async { getLeagueRanks(id) }
+            // Pass puuid directly — avoids a redundant getAccountByPUUID → getAccountByTag round-trip.
+            val tftDeferred = async { getTFTRanks(id) }
+            leagueDeferred.await() to tftDeferred.await()
+        }
         return if (leagueRanks.first().tier == "unranked" && tftRanks.isNotEmpty()) {
             tftRanks
         } else {
@@ -184,9 +192,11 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
         }
     }
 
-    private fun getTFTRanks(name: String, tag: String): List<RankResponse> {
-        val puuid = accountAPI.getAccountByTag(leagueShard.toRegionShard(), name, tag, ApiKeyType.TFT)?.puuid ?: return emptyList()
-        val summoner = tftAPI.summonerAPI.getSummonerByPUUID(leagueShard, puuid)
+    // Accepts puuid directly to avoid the redundant getAccountByPUUID → getAccountByTag round-trip.
+    private fun getTFTRanks(puuid: String): List<RankResponse> {
+        val account = accountAPI.getAccountByPUUID(leagueShard.toRegionShard(), puuid)
+        val tftPuuid = accountAPI.getAccountByTag(leagueShard.toRegionShard(), account.name, account.tag, ApiKeyType.TFT)?.puuid ?: return emptyList()
+        val summoner = tftAPI.summonerAPI.getSummonerByPUUID(leagueShard, tftPuuid)
         val leagueEntries = tftAPI.leagueAPI.getLeagueEntriesByPUUID(leagueShard, summoner.puuid)
         return leagueEntries.filter { it.ratedTier == null }.map { entry ->
             val queueId = entry.queueType.values.firstOrNull() ?: Queue.RANKED_TFT.id
@@ -220,32 +230,38 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
                 )
             )
         }
-        return leagueEntries.filter { it.queueType != GameQueueType.CHERRY }.map { entry ->
-            val series = if (entry.isInPromos) {
-                "${entry.miniSeries.wins}W-${entry.miniSeries.losses}L"
-            } else {
-                ""
-            }
-            val leagueName = if (entry.leagueId != null) {
-                try {
-                    leagueAPI.leagueAPI.getLeague(leagueShard, entry.leagueId)?.leagueName ?: ""
-                } catch (e: Exception) {
-                    ""
+        val filteredEntries = leagueEntries.filter { it.queueType != GameQueueType.CHERRY }
+        // Fetch league names in parallel — one API call per ranked queue entry.
+        return runBlocking(Dispatchers.IO) {
+            filteredEntries.map { entry ->
+                async {
+                    val series = if (entry.isInPromos) {
+                        "${entry.miniSeries.wins}W-${entry.miniSeries.losses}L"
+                    } else {
+                        ""
+                    }
+                    val leagueName = if (entry.leagueId != null) {
+                        try {
+                            leagueAPI.leagueAPI.getLeague(leagueShard, entry.leagueId)?.leagueName ?: ""
+                        } catch (e: Exception) {
+                            ""
+                        }
+                    } else {
+                        ""
+                    }
+                    val queueId = getQueueId(entry.queueType)
+                    RankResponse(
+                        tier = entry.tier.toLowerCase(),
+                        division = entry.rank,
+                        points = entry.leaguePoints,
+                        series = series,
+                        wins = entry.wins,
+                        leagueName = leagueName,
+                        queueName = Queue.getTag(queueId),
+                        queueId = queueId,
+                    )
                 }
-            } else {
-                ""
-            }
-            val queueId = getQueueId(entry.queueType)
-            RankResponse(
-                tier = entry.tier.toLowerCase(),
-                division = entry.rank,
-                points = entry.leaguePoints,
-                series = series,
-                wins = entry.wins,
-                leagueName = leagueName,
-                queueName = Queue.getTag(queueId),
-                queueId = queueId,
-            )
+            }.map { it.await() }
         }
     }
 
@@ -282,32 +298,91 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
     override fun getCurrentGame(id: String): CurrentGameResponse {
         val summoner = leagueAPI.summonerAPI.getSummonerByPUUID(leagueShard, id)
         if (summoner.currentGame == null) throw NotFoundException
-        val summoners = summoner.currentGame.participants.map { participant ->
-            val entries = leagueAPI.leagueAPI.getLeagueEntriesByPUUID(leagueShard, participant.puuid)
-            val rankedEntry = entries.firstOrNull {
-                it.queueType == GameQueueType.RANKED_SOLO_5X5
-            }
-            val entry = entries.firstOrNull {
-                it.queueType == summoner.currentGame.gameQueueConfig
-            } ?: rankedEntry
-            val account = accountAPI.getAccountByPUUID(leagueShard.toRegionShard(), participant.puuid)
-            val name = "${account.name}#${account.tag}"
-            CurrentGameSummonerResponse(
-                name = name,
-                selected = participant.summonerId == id,
-                tier = entry?.tier?.toLowerCase() ?: "unranked",
-                division = entry?.rank ?: "",
-                champId = participant.championId,
-                teamId = participant.team.value,
-            )
+        val currentGame = summoner.currentGame
+        // Fetch rank + account name for each participant in parallel.
+        val summoners = runBlocking(Dispatchers.IO) {
+            currentGame.participants.map { participant ->
+                async {
+                    val entries = leagueAPI.leagueAPI.getLeagueEntriesByPUUID(leagueShard, participant.puuid)
+                    val rankedEntry = entries.firstOrNull { it.queueType == GameQueueType.RANKED_SOLO_5X5 }
+                    val entry = entries.firstOrNull { it.queueType == currentGame.gameQueueConfig } ?: rankedEntry
+                    val account = accountAPI.getAccountByPUUID(leagueShard.toRegionShard(), participant.puuid)
+                    val name = "${account.name}#${account.tag}"
+                    CurrentGameSummonerResponse(
+                        name = name,
+                        selected = participant.summonerId == id,
+                        tier = entry?.tier?.toLowerCase() ?: "unranked",
+                        division = entry?.rank ?: "",
+                        champId = participant.championId,
+                        teamId = participant.team.value,
+                    )
+                }
+            }.map { it.await() }
         }
-        val queueId = getQueueId(summoner.currentGame.gameQueueConfig)
+        val queueId = getQueueId(currentGame.gameQueueConfig)
         return CurrentGameResponse(Queue.getTag(queueId), summoners)
     }
 
     override fun getMatch(id: Long): MatchResponse {
         val matchBuilder = MatchBuilder(leagueShard)
         val match = matchBuilder.withId("${leagueShard.value}_$id").match
+
+        // Fetch each participant's summoner + rank in parallel.
+        val players = runBlocking(Dispatchers.IO) {
+            match.participants.mapIndexed { index, participant ->
+                async {
+                    // This call fails if the participant is a bot.
+                    val summoner = if (participant.puuid != "BOT") {
+                        Summoner.byPUUID(leagueShard, participant.puuid)
+                    } else {
+                        null
+                    }
+                    var entry = summoner?.leagueEntry?.firstOrNull { it.queueType == match.queue }
+                    if (entry == null) {
+                        entry = summoner?.leagueEntry?.firstOrNull { it.queueType == GameQueueType.RANKED_SOLO_5X5 }
+                    }
+                    val items = getItems(participant)
+                    // summoner spell is null for bots
+                    val spells = listOf(participant?.summoner1Id ?: 0, participant?.summoner2Id ?: 0)
+                    val badges = mutableListOf<Badge>()
+                    if (participant.isFirstBloodKill) badges.add(Badge.FIRST_BLOOD)
+                    when {
+                        participant.pentaKills > 0 -> badges.add(Badge.PENTA_KILL)
+                        participant.quadraKills > 0 -> badges.add(Badge.QUADRA_KILL)
+                        participant.tripleKills > 0 -> badges.add(Badge.TRIPLE_KILL)
+                    }
+                    val name = "${participant.riotIdName}#${participant.riotIdTagline}"
+                    PlayerResponse(
+                        id = summoner?.puuid ?: participant.puuid,
+                        name = name,
+                        tier = entry?.tier ?: "unranked",
+                        division = entry?.tierDivisionType?.division ?: "",
+                        participantId = index + 1,
+                        teamId = participant.team.value,
+                        champId = participant.championId,
+                        champName = participant.championName,
+                        kills = participant.kills,
+                        deaths = participant.deaths,
+                        assists = participant.assists,
+                        gold = participant.goldEarned,
+                        damage = participant.totalDamageDealtToChampions,
+                        cs = participant.totalMinionsKilled + participant.neutralMinionsKilled,
+                        level = participant.championLevel,
+                        win = participant.didWin(),
+                        wards = participant.wardsPlaced,
+                        lane = participant.lane.name,
+                        role = participant.role.name,
+                        items = if (items.isNotEmpty()) items.subList(0, items.size - 1) else listOf(),
+                        trinket = items.lastOrNull()?.id ?: 0,
+                        spells = spells,
+                        // Perks are intermittently null.
+                        keystone = participant.perks.perkStyles.firstOrNull()?.selections?.firstOrNull()?.perk ?: 0,
+                        badges = badges,
+                    )
+                }
+            }.map { it.await() }
+        }
+
         var blueTeamGold = 0
         var blueTeamKills = 0
         var blueTeamDeaths = 0
@@ -318,69 +393,20 @@ class R4JClient(leagueApiKey: String, tftApiKey: String) : LeagueApiClient {
         var redTeamDeaths = 0
         var redTeamAssists = 0
         var redTeamDamage = 0
-
-        val players = match.participants.mapIndexed { index, participant ->
-            // This call fails if the participant is a bot
-            val summoner = if (participant.puuid != "BOT") {
-                Summoner.byPUUID(leagueShard, participant.puuid)
+        players.forEach { player ->
+            if (player.teamId == TeamType.BLUE.value) {
+                blueTeamGold += player.gold
+                blueTeamKills += player.kills
+                blueTeamDeaths += player.deaths
+                blueTeamAssists += player.assists
+                blueTeamDamage += player.damage
             } else {
-                null
+                redTeamGold += player.gold
+                redTeamKills += player.kills
+                redTeamDeaths += player.deaths
+                redTeamAssists += player.assists
+                redTeamDamage += player.damage
             }
-            var entry = summoner?.leagueEntry?.firstOrNull { it.queueType == match.queue }
-            if (entry == null) {
-                entry = summoner?.leagueEntry?.firstOrNull { it.queueType == GameQueueType.RANKED_SOLO_5X5 }
-            }
-            val items = getItems(participant)
-            // summoner spell is null for bots
-            val spells = listOf(participant?.summoner1Id ?: 0, participant?.summoner2Id ?: 0)
-            val badges = mutableListOf<Badge>()
-            if (participant.team == TeamType.BLUE) {
-                blueTeamGold += participant.goldEarned
-                blueTeamKills += participant.kills
-                blueTeamDeaths += participant.deaths
-                blueTeamAssists += participant.assists
-                blueTeamDamage += participant.totalDamageDealtToChampions
-            } else {
-                redTeamGold += participant.goldEarned
-                redTeamKills += participant.kills
-                redTeamDeaths += participant.deaths
-                redTeamAssists += participant.assists
-                redTeamDamage += participant.totalDamageDealtToChampions
-            }
-            if (participant.isFirstBloodKill) badges.add(Badge.FIRST_BLOOD)
-            when {
-                participant.pentaKills > 0 -> badges.add(Badge.PENTA_KILL)
-                participant.quadraKills > 0 -> badges.add(Badge.QUADRA_KILL)
-                participant.tripleKills > 0 -> badges.add(Badge.TRIPLE_KILL)
-            }
-            val name = "${participant.riotIdName}#${participant.riotIdTagline}"
-            PlayerResponse(
-                id = summoner?.puuid ?: participant.puuid,
-                name = name,
-                tier = entry?.tier ?: "unranked",
-                division = entry?.tierDivisionType?.division ?: "",
-                participantId = index + 1,
-                teamId = participant.team.value,
-                champId = participant.championId,
-                champName = participant.championName,
-                kills = participant.kills,
-                deaths = participant.deaths,
-                assists = participant.assists,
-                gold = participant.goldEarned,
-                damage = participant.totalDamageDealtToChampions,
-                cs = participant.totalMinionsKilled + participant.neutralMinionsKilled,
-                level = participant.championLevel,
-                win = participant.didWin(),
-                wards = participant.wardsPlaced,
-                lane = participant.lane.name,
-                role = participant.role.name,
-                items = if (items.isNotEmpty()) items.subList(0, items.size - 1) else listOf(),
-                trinket = items.lastOrNull()?.id ?: 0,
-                spells = spells,
-                // Perks are intermittently null.
-                keystone = participant.perks.perkStyles.firstOrNull()?.selections?.firstOrNull()?.perk ?: 0,
-                badges = badges,
-            )
         }
 
         val matchBlueTeam = match.teams.first { it.teamId.value == 100 }
