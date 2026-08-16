@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.badger"
-version = "3.0.0"
+version = "3.0.2"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -23,7 +23,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.springdoc:springdoc-openapi-ui:1.7.0")
-    implementation("com.github.stelar7:R4J:2.6.2")
+    implementation("com.github.stelar7:R4J:2.8.1")
     implementation("org.springframework.boot:spring-boot-starter-security:2.7.18")
     implementation("org.cache2k:cache2k-core:2.6.1.Final")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
