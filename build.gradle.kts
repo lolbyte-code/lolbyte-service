@@ -1,4 +1,13 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+
+// To build:
+// ./gradlew bootBuildImage
+//  docker push acschott/lolbyte-service:3.1.4
+tasks.named<BootBuildImage>("bootBuildImage") {
+    builder = "paketobuildpacks/builder:base"
+    imageName = "acschott/lolbyte-service:3.1.4"
+}
 
 plugins {
     id("org.springframework.boot") version "2.7.18"
@@ -9,7 +18,7 @@ plugins {
 }
 
 group = "com.badger"
-version = "3.0.2"
+version = "3.1.4"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
